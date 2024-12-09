@@ -1,0 +1,5 @@
+orig_filename,uid,subject_number,session_number,task,target
+EMU0562_Day01_1,1,1,1.0,rest,target_A
+EMU0562_Day02_1,1,1,2.0,rest,target_B
+EMU0562_Day03_1,1,1,3.0,rest,target_B
+EMU0562_Day04_1,1,1,4.0,rest,target_B
