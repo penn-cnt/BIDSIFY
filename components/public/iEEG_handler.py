@@ -622,6 +622,7 @@ class ieeg_handler(Subject):
         with Session(self.args.username,self.password) as session:
             
             # Open dataset session
+            self.logfile = ieegfile
             dataset = session.open_dataset(ieegfile)
             
             # Logic gate for annotation call (faster, no time data needed) or get actual data
@@ -651,7 +652,6 @@ class ieeg_handler(Subject):
 
                 # Call data and concatenate calls if greater than 10 min
                 self.data    = []
-                self.logfile = ieegfile
                 for idx,ival in enumerate(chunks):
                     self.logstart = ival[0]
                     self.logdur   = ival[1]
