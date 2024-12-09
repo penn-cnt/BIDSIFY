@@ -593,7 +593,7 @@ class ieeg_handler(Subject):
                 except (IIA.IeegConnectionError,IIA.IeegServiceError,TimeoutException,RTIMEOUT,TypeError) as e:
                     # Get more info through debug
                     if self.args.debug:
-                        print(f"Failed on {self.logfile} at {self.logstart} for {self.logdur}.")
+                        print(self.logmsg)
 
                     if n_attempts<n_retry:
                         sleep(5)
@@ -622,8 +622,8 @@ class ieeg_handler(Subject):
         with Session(self.args.username,self.password) as session:
             
             # Open dataset session
-            self.logfile = ieegfile
-            dataset = session.open_dataset(ieegfile)
+            self.logmsg = f"Tried accessing {ieegfile} "
+            dataset     = session.open_dataset(ieegfile)
             
             # Logic gate for annotation call (faster, no time data needed) or get actual data
             if not annotation_flag:
@@ -653,8 +653,7 @@ class ieeg_handler(Subject):
                 # Call data and concatenate calls if greater than 10 min
                 self.data    = []
                 for idx,ival in enumerate(chunks):
-                    self.logstart = ival[0]
-                    self.logdur   = ival[1]
+                    self.logmsg += f"at {ival[0]} seconds for {ival[1]} seconds."
                     for chunk_cntr,ichunk in enumerate(channel_chunks):
                         if chunk_cntr == 0:
                             idata = dataset.get_data(ival[0],ival[1],ichunk)
