@@ -91,7 +91,7 @@ class BIDS_handler:
                                   run=keywords['run'], 
                                   task=keywords['task'])
         
-        self.target_path = str(self.bids_path.copy()).rstrip('.edf')+'_targets.pickle'
+        self.target_path = f"{self.bids_path.copy()}_{keywords['datatype']}_targets.pickle"
 
     def create_events(self,ifile,run,fs,annotations):
 
