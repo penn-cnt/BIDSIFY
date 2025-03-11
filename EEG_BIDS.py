@@ -2,6 +2,7 @@ import os
 import argparse
 import pandas as PD
 from sys import exit
+from prettytable import PrettyTable, HRuleStyle
 
 # Local import
 from components.internal.BIDS_handler import *
@@ -18,10 +19,11 @@ def print_examples():
         
         # Read in the sample time csv
         script_dir  = '/'.join(os.path.abspath(__file__).split('/')[:-1])
-        example_csv = PD.read_csv(f"{script_dir}/samples/sample_times.csv")
+        example_csv = PD.read_csv(f"{script_dir}/samples/inputs/download_by_times.csv")
         
         # Initialize a pretty table for easy reading
-        table = PrettyTable(hrules=ALL)
+        HRuleStyle(1)
+        table = PrettyTable()
         table.field_names = example_csv.columns
         for irow in example_csv.index:
             iDF           = example_csv.loc[irow]
@@ -33,10 +35,10 @@ def print_examples():
 
         # Read in the sample annotation csv
         script_dir  = '/'.join(os.path.abspath(__file__).split('/')[:-1])
-        example_csv = PD.read_csv(f"{script_dir}/samples/sample_annot.csv")
+        example_csv = PD.read_csv(f"{script_dir}/samples/inputs/download_by_annotations.csv")
         
         # Initialize a pretty table for easy reading
-        table = PrettyTable(hrules=ALL)
+        table = PrettyTable()
         table.field_names = example_csv.columns
         for irow in example_csv.index:
             iDF           = example_csv.loc[irow]
@@ -63,6 +65,14 @@ if __name__ == '__main__':
     # Command line options needed to obtain data.
     parser = argparse.ArgumentParser(description="Make an EEG BIDS dataset from various sources. Also manages helper scripts for the CNT.")
 
+    # If the user wants an example input file, print it then close application
+    parser.add_argument("--example_input", action='store_true', default=False, help="Show example input file structure.")   
+    partial_args, _ = parser.parse_known_args()
+    if partial_args.example_input:
+        print_examples()
+        exit()
+
+    # Continue with remaining arguments for script
     source_group = parser.add_argument_group('Data source options')
     source_option_group = source_group.add_mutually_exclusive_group(required=True)
     source_option_group.add_argument("--ieeg", action='store_true', default=False, help="iEEG data pull.")
@@ -101,7 +111,6 @@ if __name__ == '__main__':
     misc_group = parser.add_argument_group('Misc options')
     misc_group.add_argument("--include_annotation", action='store_true', default=False, help="If downloading by time, include annotations/events file. Defaults to scalp layer names.")
     misc_group.add_argument("--target", type=str, help="Target to associate with the data. (i.e. PNES/EPILEPSY/etc.)")
-    misc_group.add_argument("--example_input", action='store_true', default=False, help="Show example input file structure.")
     misc_group.add_argument("--backend", type=str, default='MNE', help="Backend data handler.")
     misc_group.add_argument("--ch_type", default=None, type=str, help="Manual set of channel type if not matched by known patterns. (i.e. 'seeg' for intracranial data)")
     misc_group.add_argument("--debug", action='store_true', default=False, help="Debug tools. Mainly removes files after generation.")
@@ -111,11 +120,6 @@ if __name__ == '__main__':
     misc_group.add_argument("--connection_error_folder", default=None, type=str, help="If provided, save connection errors to this folder. Helps determine access issues after a large download.")
     misc_group.add_argument("--save_raw", action='store_true', default=False, help="Save the data as a raw csv")
     args = parser.parse_args()
-
-    # If the user wants an example input file, print it then close application
-    if args.example_input:
-        print_examples()
-        exit()
 
     # Basic clean-up
     if args.bids_root[-1] != '/': args.bids_root+='/'
