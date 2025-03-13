@@ -178,7 +178,7 @@ class jar_handler(Subject):
                 istart    = None
                 iduration = None
 
-            if DE.check_default_records(self.jar_files[idx],istart,iduration):
+            if DE.check_default_records(self.jar_files[idx],istart,iduration,overwrite=self.args.overwrite):
 
                 # Run the java script here
                 # Reference the orig_filename to the mef folder

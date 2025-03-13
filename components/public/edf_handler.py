@@ -141,6 +141,12 @@ class edf_handler(Subject):
             # Get the target if provided
             if 'target' in input_args.columns:
                 self.target_list = list(input_args['target'].values)
+
+            # Get the events if provided
+            if 'event_file' in  input_args.columns:
+                self.event_files = list(input_args['event_file'].values)
+            else:
+                self.event_files = [self.args.event_file for idx in range(input_args.shape[0])]
         else:
             # Get the required information if we don't have an input csv
             self.edf_files    = [self.args.dataset]
@@ -190,7 +196,7 @@ class edf_handler(Subject):
             istart    = None
             iduration = None
 
-        if DE.check_default_records(self.edf_files[file_cntr],istart,iduration):
+        if DE.check_default_records(self.edf_files[file_cntr],istart,iduration,overwrite=self.args.overwrite):
             self.load_data(self.edf_files[file_cntr])
                     
             # If successful, notify data observer. Else, add a skip
