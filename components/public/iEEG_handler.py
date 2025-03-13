@@ -25,7 +25,7 @@ class ieeg_handler(Subject):
         self.args = args
 
         # Create the object pointers
-        self.BH      = BIDS_handler()
+        self.BH      = BIDS_handler(args)
         self.backend = return_backend(args.backend)
 
         # Get the data record
@@ -223,7 +223,8 @@ class ieeg_handler(Subject):
             input_args = PD.read_csv(self.args.input_csv)
 
             # Check for any exceptions in the inputs
-            input_args = self.input_exceptions(input_args)
+            IE         = InputExceptions()
+            input_args = IE.ieeg_input_exceptions(input_args)
 
             # Grab the relevant indices if using multithreading
             if multiflag:

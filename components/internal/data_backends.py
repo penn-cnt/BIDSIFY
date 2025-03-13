@@ -57,17 +57,34 @@ class MNE_handler:
         return self.iraw,self.bids_datatype
 
     def make_raw(self):
+        """
+        Create the MNE raw object.
+        """
+
         idata     = np.nan_to_num(self.indata.T, )
         self.iraw = mne.io.RawArray(idata, self.data_info, verbose=False)
         self.iraw.set_channel_types(self.channel_types.type)
     
     def make_info(self):
+        """
+        Create the info object for MNE that defines the channels and their relevant units.
+        """
+
         self.data_info = mne.create_info(ch_names=list(self.channels), sfreq=self.fs, verbose=False)
         for idx,ichannel in enumerate(self.channels):
             if self.channel_types.loc[ichannel]['type'] in ['seeg','eeg']:
                 self.data_info['chs'][idx]['unit'] = FIFF.FIFF_UNIT_V
 
     def get_channel_type(self, threshold=15):
+        """
+        Attempt to figure out the recording type for a given channel based on its input naming.
+
+        Args:
+            threshold (int, optional): Maximum number of leads to define between typical scalp and ECOG electrodes. Defaults to 15.
+
+        Returns:
+            bool flag: Boolean flag for whether a reasonable match was made or not. If failure, use a default electrode type set by arguments.
+        """
 
         # Define the expression that gets lead info
         regex = re.compile(r"(\D+)(\d+)")

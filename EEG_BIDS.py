@@ -16,47 +16,70 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=RuntimeWarning)
 
 def print_examples():
+    """
+    This function is to provide samples of input tables for mass BIDS creation.
+    """
         
-        # Read in the sample time csv
-        script_dir  = '/'.join(os.path.abspath(__file__).split('/')[:-1])
-        example_csv = PD.read_csv(f"{script_dir}/samples/inputs/download_by_times.csv")
-        
-        # Initialize a pretty table for easy reading
-        HRuleStyle(1)
-        table = PrettyTable()
-        table.field_names = example_csv.columns
-        for irow in example_csv.index:
-            iDF           = example_csv.loc[irow]
-            formatted_row = [iDF[icol] for icol in example_csv.columns]
-            table.add_row(formatted_row)
-        table.align['path'] = 'l'
-        print("Sample inputs that explicitly set the download times.")
-        print(table)
+    # Read in the sample time csv
+    script_dir  = '/'.join(os.path.abspath(__file__).split('/')[:-1])
+    example_csv = PD.read_csv(f"{script_dir}/samples/inputs/download_by_times.csv")
+    
+    # Initialize a pretty table for easy reading
+    HRuleStyle(1)
+    table = PrettyTable()
+    table.field_names = example_csv.columns
+    for irow in example_csv.index:
+        iDF           = example_csv.loc[irow]
+        formatted_row = [iDF[icol] for icol in example_csv.columns]
+        table.add_row(formatted_row)
+    table.align['path'] = 'l'
+    print("Sample inputs that explicitly set the download times.")
+    print(table)
 
-        # Read in the sample annotation csv
-        script_dir  = '/'.join(os.path.abspath(__file__).split('/')[:-1])
-        example_csv = PD.read_csv(f"{script_dir}/samples/inputs/download_by_annotations.csv")
-        
-        # Initialize a pretty table for easy reading
-        table = PrettyTable()
-        table.field_names = example_csv.columns
-        for irow in example_csv.index:
-            iDF           = example_csv.loc[irow]
-            formatted_row = [iDF[icol] for icol in example_csv.columns]
-            table.add_row(formatted_row)
-        table.align['path'] = 'l'
-        print("Sample inputs that use annotations.")
-        print(table)
+    # Read in the sample annotation csv
+    script_dir  = '/'.join(os.path.abspath(__file__).split('/')[:-1])
+    example_csv = PD.read_csv(f"{script_dir}/samples/inputs/download_by_annotations.csv")
+    
+    # Initialize a pretty table for easy reading
+    table = PrettyTable()
+    table.field_names = example_csv.columns
+    for irow in example_csv.index:
+        iDF           = example_csv.loc[irow]
+        formatted_row = [iDF[icol] for icol in example_csv.columns]
+        table.add_row(formatted_row)
+    table.align['path'] = 'l'
+    print("Sample inputs that use annotations.")
+    print(table)
 
 def ieeg(args):
+    """
+    Kick off iEEG data pulls.
+
+    Args:
+        args (Namespace): Argument parser.
+    """
+
     IH = ieeg_handler(args)
     IH.workflow()
 
 def raw_edf(args):
+    """
+    Kick off raw edf conversions.
+
+    Args:
+        args (Namespace): Argument parser.
+    """
     EH = edf_handler(args)
     EH.workflow()
 
 def read_jar(args):
+    """
+    Kick off jar conversions.
+
+    Args:
+        args (Namespace): Argument parser.
+    """
+
     JH = jar_handler(args)
     JH.workflow()
 
@@ -102,6 +125,7 @@ if __name__ == '__main__':
     bids_group.add_argument("--session", type=str, help="Session string to use when not referencing a input_csv file. Only used for single data pulls.")
     bids_group.add_argument("--run", type=str, help="Run string to use when not referencing a input_csv file. Only used for single data pulls.")
     bids_group.add_argument("--task", type=str, default='rest', help="Task string to use when not referencing a input_csv file value. Used to populate all entries if not explicitly set.")
+    bids_group.add_argument("--event_file", type=str, default=None, help="Path to an events file, if applicable.")
 
     multithread_group = parser.add_argument_group('Multithreading Options')
     multithread_group.add_argument("--multithread", action='store_true', default=False, help="Multithreaded download.")
@@ -119,6 +143,7 @@ if __name__ == '__main__':
     misc_group.add_argument("--copy_edf", action='store_true', default=False, help="Straight copy an edf to bids format. Do not writeout via mne. (Still checks for valid data using mne)")
     misc_group.add_argument("--connection_error_folder", default=None, type=str, help="If provided, save connection errors to this folder. Helps determine access issues after a large download.")
     misc_group.add_argument("--save_raw", action='store_true', default=False, help="Save the data as a raw csv")
+    misc_group.add_argument("--event_from_backend", action='store_true', default=False, help="Use backend software to try and infer events.")
     args = parser.parse_args()
 
     # Basic clean-up

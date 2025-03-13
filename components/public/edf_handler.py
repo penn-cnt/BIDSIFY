@@ -13,12 +13,20 @@ from components.internal.data_backends import *
 class edf_handler(Subject):
 
     def __init__(self,args):
+        """
+        Initialize the EDF conversion to BIDS. 
+        Clean up input arguments for this use case, then create the observation objects.
+
+        Args:
+            args (Namespace): Argument parser.
+        """
 
         # Save the input objects
-        self.args = self.input_exceptions(args)
+        IE        = InputExceptions()
+        self.args = IE.edf_input_exceptions(args)
 
         # Create the object pointers
-        self.BH      = BIDS_handler()
+        self.BH      = BIDS_handler(args)
         self.backend = return_backend(args.backend)
 
         # Get the data record
@@ -42,11 +50,15 @@ class edf_handler(Subject):
         for fidx in range(len(self.edf_files)):
 
             # Create objects to store info
-            self.data_list     = []
-            self.type_list     = []
+            self.data_list  = []
+            self.type_list  = []
+            self.event_list = []
 
             # Begin downloading the data
             self.load_data_manager(fidx)
+
+            # Assign events
+            self.event_manager(fidx)
 
             # Save the data
             self.save_data(fidx)
@@ -57,10 +69,6 @@ class edf_handler(Subject):
             self.new_data_record = self.new_data_record.drop_duplicates()
             self.new_data_record = self.new_data_record.sort_values(by=['subject_number','session_number','run_number'])
             self.new_data_record.to_csv(self.data_record_path,index=False)
-
-        # Remove if debugging
-        #if self.args.debug:
-        #    os.system(f"rm -r {self.args.bids_root}*")
 
     def attach_objects(self):
         """
@@ -135,32 +143,26 @@ class edf_handler(Subject):
                 self.target_list = list(input_args['target'].values)
         else:
             # Get the required information if we don't have an input csv
-            self.edf_files   = [self.args.dataset]
-            self.start_times = [self.args.start]
-            self.durations   = [self.args.duration]
-
-            # Get the information that can be inferred
-            if self.args.uid_number != None:
-                self.uid_list = [self.args.uid_number]
-            
-            if self.args.subject_number != None:
-                self.subject_list = [self.args.subject_number]
-            
-            if self.args.session != None:
-                self.session_list = [self.args.session]
-            
-            if self.args.run != None:
-                self.run_list = [self.args.run]
-            
-            if self.args.task != None:
-                self.task_list = [self.args.task]
+            self.edf_files    = [self.args.dataset]
+            self.start_times  = [self.args.start]
+            self.durations    = [self.args.duration]
+            self.uid_list     = [self.args.uid_number]
+            self.subject_list = [self.args.subject_number]
+            self.session_list = [self.args.session]
+            self.run_list     = [self.args.run]
+            self.task_list    = [self.args.task]
 
             if self.args.target != None:
                 self.target_list = [self.args.target]
 
+            if self.args.event_file != None:
+                self.event_files = [self.args.event_file]
+            else:
+                self.event_files = [None]
+
     def get_data_record(self):
         """
-        Get the data record. This is typically 'subject_map.csv' and is used to locate data and prevent duplicate downloads.
+        Get the existing data record. This is typically 'subject_map.csv' and is used to locate data and prevent duplicate downloads.
         """
         
         # Get the proposed data record
@@ -214,6 +216,29 @@ class edf_handler(Subject):
             if self.args.debug:
                 print(f"Load error {e}")
 
+    def event_manager(self,fidx):
+        """
+        Either read in events tsv, events dictionary, or grab from the back-end. Not yet implemented until consensus on code usage in the lab
+
+        Args:
+            fidx (int): File index
+        """
+
+        # Manage different event read in scenarios
+        if self.event_files[fidx] != None:
+            if self.event_files[fidx].endswith('.csv'):
+                events = PD.read_csv(self.event_files[fidx])
+            elif self.event_files[fidx].endswith('.tsv'):
+                events = PD.read_csv(self.event_files[fidx],delimiter='\t')
+        elif self.args.event_from_backend:
+            # Read in events using the backends built-in method. Like MNE event finder
+            events = None
+        else:
+            events = None
+
+        # Store to event list
+        self.event_list.append(events)
+
     def save_data(self,fidx):
         """
         Notify the BIDS code about data updates and save the results when possible.
@@ -239,13 +264,17 @@ class edf_handler(Subject):
                                  'task':'rest','fs':iraw.info["sfreq"],'start':istart,'duration':iduration,'uid':self.uid_list[fidx]}
                 self.notify_metadata_observers()
 
-                # Save the data without events until a future release
+                # Save the data
                 print(f"Converting {self.edf_files[fidx]} to BIDS...")
-                success_flag = self.BH.save_data_wo_events(iraw, debug=self.args.debug)
+                if self.event_list[fidx] == None:
+                    success_flag = self.BH.save_data_wo_events(iraw, debug=self.args.debug)
+                else:
+                    self.events = self.event_list[fidx]
+                    success_flag = self.BH.save_data_w_events(iraw, debug=self.args.debug)
 
                 if not success_flag and self.args.copy_edf:
                     print(f"Copying {self.edf_files[fidx]} to BIDS...")
-                    success_flag = self.BH.copy_raw_edf(self.edf_files[fidx],self.type_list[idx],debug=self.args.debug)
+                    success_flag = self.BH.copy_data(self.edf_files[fidx],'edf',self.type_list[idx],debug=self.args.debug)
 
                 # If the data wrote out correctly, update the data record
                 if success_flag:
@@ -258,30 +287,3 @@ class edf_handler(Subject):
                     # Add the datarow to the records
                     self.current_record  = self.BH.make_records('edf_file')
                     self.new_data_record = PD.concat((self.new_data_record,self.current_record))
-
-    ###############################
-    ###### Custom exceptions ######
-    ###############################
-
-    def input_exceptions(self,args):
-
-        # Input csv exceptions
-        if args.input_csv:
-            input_cols = PD.read_csv(args.input_csv, index_col=0, nrows=0).columns.tolist()
-            if 'subject_number' not in input_cols:
-                raise Exception("Please provide a --subject_number to the input csv.")
-            if 'session_number' not in input_cols:
-                raise Exception("Please provide a --session_number to the input csv.")
-            if 'run_number' not in input_cols:
-                raise Exception("Please provide a --run_number to the input csv.")
-            if 'uid' not in input_cols:
-                raise Exception("Please provide a --uid_number to the input csv.")
-        else:
-            if args.subject_number == None:
-                raise Exception("Please provide a --subject_number input to the command line.")
-            if args.uid_number == None:
-                raise Exception("Please provide a --uid_number input to the command line.")
-        if args.session == None: args.session=1
-        if args.run == None: args.run=1
-
-        return args

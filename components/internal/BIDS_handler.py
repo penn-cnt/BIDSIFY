@@ -75,8 +75,8 @@ class BIDS_observer(Observer):
 
 class BIDS_handler:
 
-    def __init__(self):
-        pass
+    def __init__(self,args):
+        self.args = args
 
     def update_path(self,keywords):
         """
@@ -131,14 +131,15 @@ class BIDS_handler:
             _type_: _description_
         """
 
-        # Save the bids data
-        try:
-            write_raw_bids(bids_path=self.bids_path, raw=raw, events=self.events,event_id=self.event_mapping, allow_preload=True, format='EDF', overwrite=True, verbose=False)
-            return True
-        except Exception as e:
-            if debug:
-                print(f"Write error: {e}")
-            return False
+        if self.args.backend == 'MNE':
+            # Save the bids data
+            try:
+                write_raw_bids(bids_path=self.bids_path, raw=raw, events=self.events, event_id=self.event_mapping, allow_preload=True, format='EDF', overwrite=True, verbose=False)
+                return True
+            except Exception as e:
+                if debug:
+                    print(f"Write error: {e}")
+                return False
         
     def save_data_wo_events(self, raw, debug=False):
         """
@@ -152,14 +153,15 @@ class BIDS_handler:
             _type_: _description_
         """
 
-        # Save the bids data
-        try:
-            write_raw_bids(bids_path=self.bids_path, raw=raw, allow_preload=True, format='EDF',verbose=False,overwrite=True)
-            return True
-        except Exception as e:
-            if debug:
-                print(f"Bids write error: {e}")
-            return False
+        if self.args.backend == 'MNE':
+            # Save the bids data
+            try:
+                write_raw_bids(bids_path=self.bids_path, raw=raw, allow_preload=True, format='EDF', verbose=False, overwrite=True)
+                return True
+            except Exception as e:
+                if debug:
+                    print(f"Bids write error: {e}")
+                return False
 
     def save_raw_edf(self,raw,itype,pmin=0,pmax=1,debug=False):
         """
@@ -170,18 +172,19 @@ class BIDS_handler:
             debug (bool, optional): _description_. Defaults to False.
         """
 
-        try:
-            export_raw(str(self.bids_path)+f"_{itype}.edf",raw=raw,fmt='edf',physical_range=(pmin,pmax),overwrite=True,verbose=False)
-            return True
-        except Exception as e:
-            if debug:
-                print("Raw write error: {e}")
-            return False
+        if self.args.backend == 'MNE':
+            try:
+                export_raw(str(self.bids_path)+f"_{itype}.edf",raw=raw,fmt='edf',physical_range=(pmin,pmax),overwrite=True,verbose=False)
+                return True
+            except Exception as e:
+                if debug:
+                    print("Raw write error: {e}")
+                return False
         
-    def copy_raw_edf(self,original_path,itype,debug=False):
+    def copy_data(self,original_path,extension,itype,debug=False):
 
         try:
-            os.system(f"cp {original_path} {str(self.bids_path)}_{itype}.edf")
+            os.system(f"cp {original_path} {str(self.bids_path)}_{itype}.{extension}")
             return True
         except Exception as e:
             if debug:

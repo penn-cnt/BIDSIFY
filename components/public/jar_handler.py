@@ -16,7 +16,7 @@ class jar_handler(Subject):
         self.args = args
 
         # Create the object pointers
-        self.BH      = BIDS_handler()
+        self.BH      = BIDS_handler(args)
         self.backend = return_backend(args.backend)
 
         # Get the data record
