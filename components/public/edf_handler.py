@@ -5,10 +5,13 @@ from tqdm import tqdm
 from mne.io import read_raw_edf
 
 # Local import
+
 from components.internal.BIDS_handler import *
+from components.internal.data_backends import *
 from components.internal.observer_handler import *
 from components.internal.exception_handler import *
-from components.internal.data_backends import *
+from components.internal.nlp_token_handler import *
+from components.internal.yasa_handler import *
 
 class edf_handler(Subject):
 
@@ -76,12 +79,15 @@ class edf_handler(Subject):
         """
 
         # Create the observer objects
-        self._meta_observers = []
-        self._data_observers = []
+        self._meta_observers        = []
+        self._data_observers        = []
+        self._postprocess_observers = []
 
         # Attach observers
         self.add_meta_observer(BIDS_observer)
         self.add_data_observer(backend_observer)
+        self.add_postprocessor_observer(nlp_token_observer)
+        self.add_postprocessor_observer(yasa_observer)
 
     def get_inputs(self, multiflag=False, multiinds=None):
         """
@@ -286,10 +292,15 @@ class edf_handler(Subject):
                 if success_flag:
                     # Save the target info
                     try:
-                        self.BH.save_targets(self.target_list[fidx])
-                    except:
-                        pass
+                        self.BH.annotation_manager(iraw)
+                        self.data_path,self.target_path = self.BH.save_targets(self.target_list[fidx])
+                    except Exception as e:
+                        if self.args.debug:
+                            print(f"Target Writout error: {e}")
                     
                     # Add the datarow to the records
                     self.current_record  = self.BH.make_records('edf_file')
                     self.new_data_record = PD.concat((self.new_data_record,self.current_record))
+
+                    # Run post processing
+                    self.notify_postprocess_observers()

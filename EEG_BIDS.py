@@ -8,7 +8,7 @@ from prettytable import PrettyTable, HRuleStyle
 from components.internal.BIDS_handler import *
 from components.public.edf_handler import edf_handler
 from components.public.iEEG_handler import ieeg_handler
-from components.public.jar_handler import jar_handler
+from components.public.iEEG_handler import ieeg_handler
 
 # MNE is very chatty. Turn off some warnings.
 import warnings
@@ -95,20 +95,30 @@ if __name__ == '__main__':
         print_examples()
         exit()
 
-    # Continue with remaining arguments for script
+    # Define the source dataset
     source_group = parser.add_argument_group('Data source options')
     source_option_group = source_group.add_mutually_exclusive_group(required=True)
     source_option_group.add_argument("--ieeg", action='store_true', default=False, help="iEEG data pull.")
     source_option_group.add_argument("--edf", action='store_true', default=False, help="Raw edf data pull.")
-    source_option_group.add_argument("--jar", action='store_true', default=False, help="Convert jar file to EDF Bids.")
+    source_option_group.add_argument("--pennsieve", action='store_true', default=False, help="Pennsieve data pull.")
 
+    # Check for as yet unimplemnted pennsieve api
+    partial_args, _ = parser.parse_known_args()
+    if partial_args.pennsieve:
+        print(f"Pennsieve support is not yet implmented.")
+        print(f"The Python API is still in development, and the agent only pulls down whole files.")
+        print(f"Python support for targeted downloads, including time segment downloads, is available on request from the Data team. (Not publically available code)")
+        print("Once Pennsieve releases a full api, this code should be updated to call on the API properly and rescope variables to pennsieve equivalents and update the subject map.")
+        exit()
+
+    # Continue with remaining arguments for script
     data_group = parser.add_argument_group('Data configuration options')
     data_group.add_argument("--bids_root", type=str, required=True, default=None, help="Output directory to store BIDS data.")
     data_group.add_argument("--data_record", type=str, default='subject_map.csv', help="Filename for data record. Outputs to bids_root.")
+    data_group.add_argument("--input_csv", type=str, help="CSV file with the relevant filenames, start times, durations, and keywords. For an example, use the --example_input flag.")
 
     ieeg_group = parser.add_argument_group('iEEG connection options')
     ieeg_group.add_argument("--username", type=str, help="Username for iEEG.org.")
-    ieeg_group.add_argument("--input_csv", type=str, help="CSV file with the relevant filenames, start times, durations, and keywords. For an example, use the --example_input flag.")
     ieeg_group.add_argument("--dataset", type=str, help="iEEG.org Dataset name. Useful if downloading just one dataset,")
     ieeg_group.add_argument("--start", type=float, help="Start time of clip in usec. Useful if downloading just one dataset,")
     ieeg_group.add_argument("--duration", type=float, help="Duration of clip in usec. Useful if downloading just one dataset,")
@@ -155,7 +165,5 @@ if __name__ == '__main__':
         ieeg(args)
     elif args.edf:
         raw_edf(args)
-    elif args.jar:
-        read_jar(args)
     else:
         print("Please select at least one source from the source group. (--help for all options.)")

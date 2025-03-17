@@ -12,6 +12,10 @@ class Subject:
         if observer not in self._data_observers:
             self._data_observers.append(observer)
 
+    def add_postprocessor_observer(self, observer):
+        if observer not in self._postprocess_observers:
+            self._postprocess_observers.append(observer)
+
     def notify_metadata_observers(self):
         for observer in self._meta_observers:
             observer.listen_metadata(self)
@@ -19,6 +23,10 @@ class Subject:
     def notify_data_observers(self):
         for observer in self._data_observers:
             observer.listen_data(self)
+
+    def notify_postprocess_observers(self):
+        for observer in self._postprocess_observers:
+            observer.listen_postprocess(self)
 
 class Observer(ABC):
     """

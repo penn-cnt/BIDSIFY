@@ -90,8 +90,8 @@ class BIDS_handler:
                                   subject=keywords['subject'],
                                   run=keywords['run'], 
                                   task=keywords['task'])
-        
-        self.target_path = f"{self.bids_path.copy()}_{keywords['datatype']}_targets.pickle"
+        self.target_path = f"{self.bids_path.directory}/{self.bids_path.basename}_{keywords['datatype']}_targets.pickle"
+        self.data_path   = f"{self.bids_path.directory}/{self.bids_path.basename}_{keywords['datatype']}.edf"
 
     def create_events(self,ifile,run,fs,annotations):
 
@@ -113,11 +113,36 @@ class BIDS_handler:
             self.alldesc.append(desc)
         self.events  = np.array(events)
 
+    def annotation_manager(self,raw):
+
+        def get_annot(iannot):
+            return iannot['description']
+
+        self.alldesc = '||'.join(list(map(get_annot,raw.annotations)))
+
     def save_targets(self,target):
 
+        # Logic for handling file input targets
+        if os.path.exists(target):
+            if target.endswith('.pickle'):
+                fp          = open(target,'rb')
+                target_dict = pickle.load(fp)
+                fp.close()
+            else:
+                target_dict = {'target':target}
+        else:
+            target_dict = {'target':target}        
+
+        # Check for the merged descriptions. Only important for iEEG.org calls.
+        if hasattr(self,'alldesc'):
+            target_dict['annotation']='||'.join(self.alldesc)
+
         # Store the targets
-        target_dict = {'target':target,'annotation':'||'.join(self.alldesc)}
-        pickle.dump(target_dict,open(self.target_path,"wb"))
+        fp = open(self.target_path,"wb")
+        pickle.dump(target_dict,fp)
+        fp.close()
+
+        return self.data_path,self.target_path
 
     def save_data_w_events(self, raw, debug=False):
         """
@@ -190,7 +215,6 @@ class BIDS_handler:
             if debug:
                 print("Raw copy error: {e}")
             return False
-
 
     def make_records(self,source):
 

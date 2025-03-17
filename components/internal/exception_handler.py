@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as PD
 
 # API timeout class
 import signal
@@ -119,22 +120,22 @@ class InputExceptions:
                 raise Exception("Please provide a --subject_number input to the command line.")
             if args.uid_number == None:
                 raise Exception("Please provide a --uid_number input to the command line.")
-        if args.session == None:
-            while True:
-                flag = input(f"Use Session Number {1:03d} (Yy/Nn)? ")
-                if flag.lower() == 'y':
-                    break
-                elif flag.lower() == 'n':
-                    raise Exception("Please provide a --session_number input to the command line.")
-            args.session=1
-        if args.run == None:
-            while True:
-                flag = input(f"Use Run Number {1:03d} (Yy/Nn)? ")
-                if flag.lower() == 'y':
-                    break
-                elif flag.lower() == 'n':
-                    raise Exception("Please provide a --run_number input to the command line.")
-            args.run=1
+            if args.session == None:
+                while True:
+                    flag = input(f"Use Session Number {1:03d} (Yy/Nn)? ")
+                    if flag.lower() == 'y':
+                        break
+                    elif flag.lower() == 'n':
+                        raise Exception("Please provide a --session_number input to the command line.")
+                args.session=1
+            if args.run == None:
+                while True:
+                    flag = input(f"Use Run Number {1:03d} (Yy/Nn)? ")
+                    if flag.lower() == 'y':
+                        break
+                    elif flag.lower() == 'n':
+                        raise Exception("Please provide a --run_number input to the command line.")
+                args.run=1
 
         return args
     
