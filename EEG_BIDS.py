@@ -8,7 +8,7 @@ from prettytable import PrettyTable, HRuleStyle
 from components.internal.BIDS_handler import *
 from components.public.edf_handler import edf_handler
 from components.public.iEEG_handler import ieeg_handler
-from components.public.jar_handler import jar_handler
+from components.public.iEEG_handler import ieeg_handler
 
 # MNE is very chatty. Turn off some warnings.
 import warnings
@@ -16,47 +16,70 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=RuntimeWarning)
 
 def print_examples():
+    """
+    This function is to provide samples of input tables for mass BIDS creation.
+    """
         
-        # Read in the sample time csv
-        script_dir  = '/'.join(os.path.abspath(__file__).split('/')[:-1])
-        example_csv = PD.read_csv(f"{script_dir}/samples/inputs/download_by_times.csv")
-        
-        # Initialize a pretty table for easy reading
-        HRuleStyle(1)
-        table = PrettyTable()
-        table.field_names = example_csv.columns
-        for irow in example_csv.index:
-            iDF           = example_csv.loc[irow]
-            formatted_row = [iDF[icol] for icol in example_csv.columns]
-            table.add_row(formatted_row)
-        table.align['path'] = 'l'
-        print("Sample inputs that explicitly set the download times.")
-        print(table)
+    # Read in the sample time csv
+    script_dir  = '/'.join(os.path.abspath(__file__).split('/')[:-1])
+    example_csv = PD.read_csv(f"{script_dir}/samples/inputs/download_by_times.csv")
+    
+    # Initialize a pretty table for easy reading
+    HRuleStyle(1)
+    table = PrettyTable()
+    table.field_names = example_csv.columns
+    for irow in example_csv.index:
+        iDF           = example_csv.loc[irow]
+        formatted_row = [iDF[icol] for icol in example_csv.columns]
+        table.add_row(formatted_row)
+    table.align['path'] = 'l'
+    print("Sample inputs that explicitly set the download times.")
+    print(table)
 
-        # Read in the sample annotation csv
-        script_dir  = '/'.join(os.path.abspath(__file__).split('/')[:-1])
-        example_csv = PD.read_csv(f"{script_dir}/samples/inputs/download_by_annotations.csv")
-        
-        # Initialize a pretty table for easy reading
-        table = PrettyTable()
-        table.field_names = example_csv.columns
-        for irow in example_csv.index:
-            iDF           = example_csv.loc[irow]
-            formatted_row = [iDF[icol] for icol in example_csv.columns]
-            table.add_row(formatted_row)
-        table.align['path'] = 'l'
-        print("Sample inputs that use annotations.")
-        print(table)
+    # Read in the sample annotation csv
+    script_dir  = '/'.join(os.path.abspath(__file__).split('/')[:-1])
+    example_csv = PD.read_csv(f"{script_dir}/samples/inputs/download_by_annotations.csv")
+    
+    # Initialize a pretty table for easy reading
+    table = PrettyTable()
+    table.field_names = example_csv.columns
+    for irow in example_csv.index:
+        iDF           = example_csv.loc[irow]
+        formatted_row = [iDF[icol] for icol in example_csv.columns]
+        table.add_row(formatted_row)
+    table.align['path'] = 'l'
+    print("Sample inputs that use annotations.")
+    print(table)
 
 def ieeg(args):
+    """
+    Kick off iEEG data pulls.
+
+    Args:
+        args (Namespace): Argument parser.
+    """
+
     IH = ieeg_handler(args)
     IH.workflow()
 
 def raw_edf(args):
+    """
+    Kick off raw edf conversions.
+
+    Args:
+        args (Namespace): Argument parser.
+    """
     EH = edf_handler(args)
     EH.workflow()
 
 def read_jar(args):
+    """
+    Kick off jar conversions.
+
+    Args:
+        args (Namespace): Argument parser.
+    """
+
     JH = jar_handler(args)
     JH.workflow()
 
@@ -72,20 +95,30 @@ if __name__ == '__main__':
         print_examples()
         exit()
 
-    # Continue with remaining arguments for script
+    # Define the source dataset
     source_group = parser.add_argument_group('Data source options')
     source_option_group = source_group.add_mutually_exclusive_group(required=True)
     source_option_group.add_argument("--ieeg", action='store_true', default=False, help="iEEG data pull.")
     source_option_group.add_argument("--edf", action='store_true', default=False, help="Raw edf data pull.")
-    source_option_group.add_argument("--jar", action='store_true', default=False, help="Convert jar file to EDF Bids.")
+    source_option_group.add_argument("--pennsieve", action='store_true', default=False, help="Pennsieve data pull.")
 
+    # Check for as yet unimplemnted pennsieve api
+    partial_args, _ = parser.parse_known_args()
+    if partial_args.pennsieve:
+        print(f"Pennsieve support is not yet implmented.")
+        print(f"The Python API is still in development, and the agent only pulls down whole files.")
+        print(f"Python support for targeted downloads, including time segment downloads, is available on request from the Data team. (Not publically available code)")
+        print("Once Pennsieve releases a full api, this code should be updated to call on the API properly and rescope variables to pennsieve equivalents and update the subject map.")
+        exit()
+
+    # Continue with remaining arguments for script
     data_group = parser.add_argument_group('Data configuration options')
     data_group.add_argument("--bids_root", type=str, required=True, default=None, help="Output directory to store BIDS data.")
     data_group.add_argument("--data_record", type=str, default='subject_map.csv', help="Filename for data record. Outputs to bids_root.")
+    data_group.add_argument("--input_csv", type=str, help="CSV file with the relevant filenames, start times, durations, and keywords. For an example, use the --example_input flag.")
 
     ieeg_group = parser.add_argument_group('iEEG connection options')
     ieeg_group.add_argument("--username", type=str, help="Username for iEEG.org.")
-    ieeg_group.add_argument("--input_csv", type=str, help="CSV file with the relevant filenames, start times, durations, and keywords. For an example, use the --example_input flag.")
     ieeg_group.add_argument("--dataset", type=str, help="iEEG.org Dataset name. Useful if downloading just one dataset,")
     ieeg_group.add_argument("--start", type=float, help="Start time of clip in usec. Useful if downloading just one dataset,")
     ieeg_group.add_argument("--duration", type=float, help="Duration of clip in usec. Useful if downloading just one dataset,")
@@ -102,6 +135,7 @@ if __name__ == '__main__':
     bids_group.add_argument("--session", type=str, help="Session string to use when not referencing a input_csv file. Only used for single data pulls.")
     bids_group.add_argument("--run", type=str, help="Run string to use when not referencing a input_csv file. Only used for single data pulls.")
     bids_group.add_argument("--task", type=str, default='rest', help="Task string to use when not referencing a input_csv file value. Used to populate all entries if not explicitly set.")
+    bids_group.add_argument("--event_file", type=str, default=None, help="Path to an events file, if applicable.")
 
     multithread_group = parser.add_argument_group('Multithreading Options')
     multithread_group.add_argument("--multithread", action='store_true', default=False, help="Multithreaded download.")
@@ -119,6 +153,9 @@ if __name__ == '__main__':
     misc_group.add_argument("--copy_edf", action='store_true', default=False, help="Straight copy an edf to bids format. Do not writeout via mne. (Still checks for valid data using mne)")
     misc_group.add_argument("--connection_error_folder", default=None, type=str, help="If provided, save connection errors to this folder. Helps determine access issues after a large download.")
     misc_group.add_argument("--save_raw", action='store_true', default=False, help="Save the data as a raw csv")
+    misc_group.add_argument("--event_from_backend", action='store_true', default=False, help="Use backend software to try and infer events.")
+    misc_group.add_argument("--overwrite", action='store_true', default=False, help="Overwrite existing records with the same bids keywords.")
+    misc_group.add_argument("--anonymize", action='store_true', default=False, help="Anonymize the data before writeout.")
     args = parser.parse_args()
 
     # Basic clean-up
@@ -129,7 +166,5 @@ if __name__ == '__main__':
         ieeg(args)
     elif args.edf:
         raw_edf(args)
-    elif args.jar:
-        read_jar(args)
     else:
         print("Please select at least one source from the source group. (--help for all options.)")

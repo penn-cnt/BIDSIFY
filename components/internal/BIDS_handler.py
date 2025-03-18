@@ -75,8 +75,8 @@ class BIDS_observer(Observer):
 
 class BIDS_handler:
 
-    def __init__(self):
-        pass
+    def __init__(self,args):
+        self.args = args
 
     def update_path(self,keywords):
         """
@@ -90,8 +90,8 @@ class BIDS_handler:
                                   subject=keywords['subject'],
                                   run=keywords['run'], 
                                   task=keywords['task'])
-        
-        self.target_path = f"{self.bids_path.copy()}_{keywords['datatype']}_targets.pickle"
+        self.target_path = f"{self.bids_path.directory}/{self.bids_path.basename}_{keywords['datatype']}_targets.pickle"
+        self.data_path   = f"{self.bids_path.directory}/{self.bids_path.basename}_{keywords['datatype']}.edf"
 
     def create_events(self,ifile,run,fs,annotations):
 
@@ -113,11 +113,36 @@ class BIDS_handler:
             self.alldesc.append(desc)
         self.events  = np.array(events)
 
+    def annotation_manager(self,raw):
+
+        def get_annot(iannot):
+            return iannot['description']
+
+        self.alldesc = '||'.join(list(map(get_annot,raw.annotations)))
+
     def save_targets(self,target):
 
+        # Logic for handling file input targets
+        if os.path.exists(target):
+            if target.endswith('.pickle'):
+                fp          = open(target,'rb')
+                target_dict = pickle.load(fp)
+                fp.close()
+            else:
+                target_dict = {'target':target}
+        else:
+            target_dict = {'target':target}
+
+        # Check for the merged descriptions. Only important for iEEG.org calls.
+        if hasattr(self,'alldesc'):
+            target_dict['description'] ='||'.join(self.alldesc)
+
         # Store the targets
-        target_dict = {'target':target,'annotation':'||'.join(self.alldesc)}
-        pickle.dump(target_dict,open(self.target_path,"wb"))
+        fp = open(self.target_path,"wb")
+        pickle.dump(target_dict,fp)
+        fp.close()
+
+        return self.data_path,self.target_path
 
     def save_data_w_events(self, raw, debug=False):
         """
@@ -131,14 +156,15 @@ class BIDS_handler:
             _type_: _description_
         """
 
-        # Save the bids data
-        try:
-            write_raw_bids(bids_path=self.bids_path, raw=raw, events=self.events,event_id=self.event_mapping, allow_preload=True, format='EDF', overwrite=True, verbose=False)
-            return True
-        except Exception as e:
-            if debug:
-                print(f"Write error: {e}")
-            return False
+        if self.args.backend == 'MNE':
+            # Save the bids data
+            try:
+                write_raw_bids(bids_path=self.bids_path, raw=raw, events=self.events, event_id=self.event_mapping, allow_preload=True, format='EDF', overwrite=True, verbose=False)
+                return True
+            except Exception as e:
+                if debug:
+                    print(f"Write error: {e}")
+                return False
         
     def save_data_wo_events(self, raw, debug=False):
         """
@@ -152,14 +178,15 @@ class BIDS_handler:
             _type_: _description_
         """
 
-        # Save the bids data
-        try:
-            write_raw_bids(bids_path=self.bids_path, raw=raw, allow_preload=True, format='EDF',verbose=False,overwrite=True)
-            return True
-        except Exception as e:
-            if debug:
-                print(f"Bids write error: {e}")
-            return False
+        if self.args.backend == 'MNE':
+            # Save the bids data
+            try:
+                write_raw_bids(bids_path=self.bids_path, raw=raw, allow_preload=True, format='EDF', verbose=False, overwrite=True)
+                return True
+            except Exception as e:
+                if debug:
+                    print(f"Bids write error: {e}")
+                return False
 
     def save_raw_edf(self,raw,itype,pmin=0,pmax=1,debug=False):
         """
@@ -170,24 +197,24 @@ class BIDS_handler:
             debug (bool, optional): _description_. Defaults to False.
         """
 
-        try:
-            export_raw(str(self.bids_path)+f"_{itype}.edf",raw=raw,fmt='edf',physical_range=(pmin,pmax),overwrite=True,verbose=False)
-            return True
-        except Exception as e:
-            if debug:
-                print("Raw write error: {e}")
-            return False
+        if self.args.backend == 'MNE':
+            try:
+                export_raw(str(self.bids_path)+f"_{itype}.edf",raw=raw,fmt='edf',physical_range=(pmin,pmax),overwrite=True,verbose=False)
+                return True
+            except Exception as e:
+                if debug:
+                    print("Raw write error: {e}")
+                return False
         
-    def copy_raw_edf(self,original_path,itype,debug=False):
+    def copy_data(self,original_path,extension,itype,debug=False):
 
         try:
-            os.system(f"cp {original_path} {str(self.bids_path)}_{itype}.edf")
+            os.system(f"cp {original_path} {str(self.bids_path)}_{itype}.{extension}")
             return True
         except Exception as e:
             if debug:
                 print("Raw copy error: {e}")
             return False
-
 
     def make_records(self,source):
 
@@ -202,3 +229,38 @@ class BIDS_handler:
         self.current_record['start_sec']      = self.current_keywords['start']
         self.current_record['duration_sec']   = self.current_keywords['duration']
         return self.current_record
+    
+    def update_ignore(self):
+        """
+        Update the ignore file to avoid CNT specific side cars.
+        """
+
+        # Define the ignore list
+        ignore_list = ["**/*yasa.csv","**/*targets.pickle","**/*filetokens.dict"]
+
+        # Uncover the bids ignore path
+        ignore_path = f"{self.bids_path._root}/.bidsignore"
+        
+        # Check for the bids ignore file
+        if not os.path.exists(ignore_path):
+            
+            # Add to the ignore file
+            fp = open(ignore_path,'w')
+            for istr in ignore_list:
+                fp.write(f"{istr}\n")
+            fp.close()
+        else:
+            
+            # Get the existing list
+            fp               = open(ignore_path,'r')
+            previous_ignores = fp.readlines()
+            previous_ignores = [istr.strip('\n') for istr in previous_ignores]
+            fp.close()
+
+            # Add to the ignore file if needed
+            fp = open(ignore_path,'w')
+            for istr in previous_ignores:fp.write(istr)
+            for istr in ignore_list:
+                if istr not in previous_ignores:
+                    fp.write(f"{istr}\n")
+            fp.close()

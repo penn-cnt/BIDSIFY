@@ -25,7 +25,7 @@ class ieeg_handler(Subject):
         self.args = args
 
         # Create the object pointers
-        self.BH      = BIDS_handler()
+        self.BH      = BIDS_handler(args)
         self.backend = return_backend(args.backend)
 
         # Get the data record
@@ -223,7 +223,8 @@ class ieeg_handler(Subject):
             input_args = PD.read_csv(self.args.input_csv)
 
             # Check for any exceptions in the inputs
-            input_args = self.input_exceptions(input_args)
+            IE         = InputExceptions()
+            input_args = IE.ieeg_input_exceptions(input_args)
 
             # Grab the relevant indices if using multithreading
             if multiflag:
@@ -438,7 +439,7 @@ class ieeg_handler(Subject):
                     self.annotation_cleanup(self.ieeg_files[idx],self.uid_list[idx],self.subject_list[idx],self.session_list[idx],self.target_list[idx])
             else:
                 # If-else around if the data already exists in our records. Add a skip to the data list if found to maintain run order.
-                if DE.check_default_records(self.ieeg_files[idx],1e-6*self.start_times[idx],1e-6*self.durations[idx]):
+                if DE.check_default_records(self.ieeg_files[idx],1e-6*self.start_times[idx],1e-6*self.durations[idx],overwrite=self.args.overwrite):
 
                     # Get the annotations for just this download if requested
                     if self.args.include_annotation:
@@ -470,7 +471,7 @@ class ieeg_handler(Subject):
             for idx in range(len(self.ieeg_files)):
 
                 # If-else around if the data already exists in our records. Add a skip to the data list if found to maintain run order.
-                if DE.check_default_records(self.ieeg_files[idx],1e-6*self.start_times[idx],1e-6*self.durations[idx]):
+                if DE.check_default_records(self.ieeg_files[idx],1e-6*self.start_times[idx],1e-6*self.durations[idx],overwrite=self.args.overwrite):
 
                     # Download the data
                     self.download_data(self.ieeg_files[idx],self.start_times[idx],self.durations[idx],False)
