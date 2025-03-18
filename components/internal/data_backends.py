@@ -52,7 +52,11 @@ class MNE_handler:
         except Exception as e:
             if self.args.debug:
                 print(f"Load error {e}")
-        
+
+        # Anonymize if requested
+        if self.args.anonymize:
+            self.iraw = self.iraw.anonymize()
+
         # Return raw to the list of raws being tracked by the Subject class
         return self.iraw,self.bids_datatype
 

@@ -77,6 +77,7 @@ The output name for this file can be changed using the `--data_record` keyword.
 
 We provide a few sample commands here. Note, all examples utilize a username and filepaths that you will need to update to reflect your own system and credentials.
 
+```
 #### Single download without an input csv. Should create subject 562, session 1, run 1
 `python EEG_BIDS.py --ieeg --username BJPrager --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/  --dataset EMU0562_Day01_1 --start 2925000000 --duration 10000000`
 
@@ -93,6 +94,16 @@ We provide a few sample commands here. Note, all examples utilize a username and
 
 #### Single raw edf file conversion without inputs. Should create subject HUP001, session 1, run 1
 `python EEG_BIDS.py --edf --username BJPrager --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/  --dataset /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/BIDS/sub-00001/ses-preimplant001/eeg/sub-00001_ses-preimplant001_task-task_run-01_eeg.edf --subject HUP001 --uid_number 1`
+```
+
+#### Single edf
+`python EEG_BIDS.py --edf --username BJPrager --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/  --dataset /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/epipy_testing/BIDS/sub-HUP00001_ses-emu1648day01file1_task-rest_run-0002_eeg.edf --subject HUP001 --uid_number 1 --session 1 --run 1 --overwrite --target /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/epipy_testing/BIDS/sub-HUP00001_ses-emu1648day01file1_task-rest_run-0002_eeg_targets.pickle`
+
+#### Multi edf
+`python EEG_BIDS.py --edf --username BJPrager --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/  --dataset /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/epipy_testing/BIDS/sub-HUP00001_ses-emu1648day01file1_task-rest_run-0002_eeg.edf --input_csv samples/inputs/sample_edf_inputs_w_target.csv --overwrite`
+
+#### Find targets
+`python find_targets.py --tokendict /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/filetokens.dict --outfile sample_files`
 
 ## Assigning a `--uid` 
 This is an additional flag used by the CNT to create a unique identifier for each patient that may not map to the BIDS subject keyword. Each dataset may have slightly different naming conventions, but this identifier is meant to let us map data back a redcap ID or MRN when viewed behind a clinical firewall. 

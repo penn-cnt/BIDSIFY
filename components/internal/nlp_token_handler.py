@@ -1,9 +1,9 @@
 import os
+import ast
 import pickle
 from nltk.corpus import stopwords
 from nltk.data import find as NLFIND
 from nltk.tokenize import RegexpTokenizer
-
 
 # Local Imports
 from components.internal.observer_handler import *
@@ -60,10 +60,19 @@ class nlp_token_handler:
         def return_tokens(istr):
 
             stop_words      = set(stopwords.words('english'))
+            blacklist       = ['bjprager']
             tokenizer       = RegexpTokenizer(r'\w+')
             tokens          = tokenizer.tokenize(istr.lower())
             filtered_tokens = [token for token in tokens if token not in stop_words and len(token) > 1]
-            return filtered_tokens
+            outtokens       = []
+            for token in filtered_tokens:
+                tflag = True
+                for iblacklist in blacklist:
+                    if iblacklist in token:
+                        tflag = False
+                if tflag:
+                    outtokens.append(token)
+            return outtokens
 
         # Grab the target data
         fp          = open(self.target_path,'rb')
@@ -73,8 +82,41 @@ class nlp_token_handler:
         # Extract the tokens
         annot_str       = target_dict['annotation']
         target_str      = target_dict['target']
-        all_tokens      = return_tokens(annot_str)
-        self.all_tokens = all_tokens + return_tokens(target_str)
+
+        # Get tokens for targets
+        all_tokens = []
+        try:
+            # Some cleanup for the ast library
+            tmp   = target_str.replace("'","")
+            tmp   = tmp.replace('"',"")
+            tmp   = tmp.replace("{","{'")
+            tmp   = tmp.replace("}","'}")
+            tmp   = tmp.replace(":","':'")
+            tmp   = tmp.replace(",","','")
+            tdict = ast.literal_eval(tmp)
+            
+            for ival in tdict.values():
+                all_tokens.extend(return_tokens(ival))
+        except Exception as e:
+            all_tokens.extend(return_tokens(target_str))
+
+        # get tokens for annotations
+        try:
+            tmp   = annot_str.replace("'","")
+            tmp   = tmp.replace('"',"")
+            tmp   = tmp.replace("{","{'")
+            tmp   = tmp.replace("}","'}")
+            tmp   = tmp.replace(":","':'")
+            tmp   = tmp.replace(",","','")
+            adict = ast.literal_eval(annot_str)
+
+            for ival in adict.values():
+                all_tokens.extend(return_tokens(ival))
+        except Exception as e:
+            all_tokens.extend(return_tokens(annot_str))
+
+        # Store result to self
+        self.all_tokens = all_tokens
 
     def update_tokendict(self):
 

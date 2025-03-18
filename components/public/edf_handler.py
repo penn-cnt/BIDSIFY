@@ -50,12 +50,12 @@ class edf_handler(Subject):
         self.get_inputs()
 
         # Loop over the files individually for edf files. This option has to handle large files.
+        self.event_list = []
         for fidx in range(len(self.edf_files)):
 
             # Create objects to store info
             self.data_list  = []
             self.type_list  = []
-            self.event_list = []
 
             # Begin downloading the data
             self.load_data_manager(fidx)
@@ -72,6 +72,9 @@ class edf_handler(Subject):
             self.new_data_record = self.new_data_record.drop_duplicates()
             self.new_data_record = self.new_data_record.sort_values(by=['subject_number','session_number','run_number'])
             self.new_data_record.to_csv(self.data_record_path,index=False)
+
+            # Update the bids ignore
+            self.BH.update_ignore()
 
     def attach_objects(self):
         """
@@ -304,3 +307,4 @@ class edf_handler(Subject):
 
                     # Run post processing
                     self.notify_postprocess_observers()
+        

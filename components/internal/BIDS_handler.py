@@ -131,11 +131,11 @@ class BIDS_handler:
             else:
                 target_dict = {'target':target}
         else:
-            target_dict = {'target':target}        
+            target_dict = {'target':target}
 
         # Check for the merged descriptions. Only important for iEEG.org calls.
         if hasattr(self,'alldesc'):
-            target_dict['annotation']='||'.join(self.alldesc)
+            target_dict['description'] ='||'.join(self.alldesc)
 
         # Store the targets
         fp = open(self.target_path,"wb")
@@ -229,3 +229,38 @@ class BIDS_handler:
         self.current_record['start_sec']      = self.current_keywords['start']
         self.current_record['duration_sec']   = self.current_keywords['duration']
         return self.current_record
+    
+    def update_ignore(self):
+        """
+        Update the ignore file to avoid CNT specific side cars.
+        """
+
+        # Define the ignore list
+        ignore_list = ["**/*yasa.csv","**/*targets.pickle","**/*filetokens.dict"]
+
+        # Uncover the bids ignore path
+        ignore_path = f"{self.bids_path._root}/.bidsignore"
+        
+        # Check for the bids ignore file
+        if not os.path.exists(ignore_path):
+            
+            # Add to the ignore file
+            fp = open(ignore_path,'w')
+            for istr in ignore_list:
+                fp.write(f"{istr}\n")
+            fp.close()
+        else:
+            
+            # Get the existing list
+            fp               = open(ignore_path,'r')
+            previous_ignores = fp.readlines()
+            previous_ignores = [istr.strip('\n') for istr in previous_ignores]
+            fp.close()
+
+            # Add to the ignore file if needed
+            fp = open(ignore_path,'w')
+            for istr in previous_ignores:fp.write(istr)
+            for istr in ignore_list:
+                if istr not in previous_ignores:
+                    fp.write(f"{istr}\n")
+            fp.close()

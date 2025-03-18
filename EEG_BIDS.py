@@ -155,6 +155,7 @@ if __name__ == '__main__':
     misc_group.add_argument("--save_raw", action='store_true', default=False, help="Save the data as a raw csv")
     misc_group.add_argument("--event_from_backend", action='store_true', default=False, help="Use backend software to try and infer events.")
     misc_group.add_argument("--overwrite", action='store_true', default=False, help="Overwrite existing records with the same bids keywords.")
+    misc_group.add_argument("--anonymize", action='store_true', default=False, help="Anonymize the data before writeout.")
     args = parser.parse_args()
 
     # Basic clean-up

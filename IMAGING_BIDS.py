@@ -9,7 +9,7 @@ import datetime
 import numpy as np
 from sys import exit
 from pathlib import Path as Pathlib
-from prettytable import PrettyTable,ALL
+from prettytable import PrettyTable
 
 # Pybids imports
 from bids import BIDSLayout
@@ -154,6 +154,7 @@ class prepare_imaging:
                 pickle.dump(outlake,open(newpath,'wb'))
 
     def get_filepaths(self):
+        
         # Find all the json files in the flat data folder
         self.json_files = glob.glob(f"{self.args.dataset}*json")
 
