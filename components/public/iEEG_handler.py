@@ -25,7 +25,7 @@ class ieeg_handler(Subject):
         self.args = args
 
         # Create the object pointers
-        self.BH      = BIDS_handler(args)
+        self.BH      = BIDS_handler_MNE(args)
         self.backend = return_backend(args.backend)
 
         # Get the data record
@@ -450,6 +450,9 @@ class ieeg_handler(Subject):
                     
                     # If successful, notify data observer. Else, add a skip
                     if self.success_flag:
+                        # Data object is a way to package data relevant to whatever workflow you want to send to a backend. Named and packaged like this so the listener can send
+                        # an expected object to different backends.
+                        self.data_object = (self.data,self.channels,self.fs)
                         self.notify_data_observers()
                     else:
                         self.data_list.append(None)
@@ -478,6 +481,9 @@ class ieeg_handler(Subject):
                     
                     # If successful, notify data observer. Else, add a skip
                     if self.success_flag:
+                        # Data object is a way to package data relevant to whatever workflow you want to send to a backend. Named and packaged like this so the listener can send
+                        # an expected object to different backends.
+                        self.data_object = (self.data,self.channels,self.fs)
                         self.notify_data_observers()
                     else:
                         self.data_list.append(None)
@@ -538,7 +544,7 @@ class ieeg_handler(Subject):
                 self.keywords = {'filename':self.ieeg_files[idx],'root':self.args.bids_root,'datatype':self.type_list[idx],
                                 'session':self.session_list[idx],'subject':self.subject_list[idx],'run':self.run_list[idx],
                                 'task':'rest','fs':iraw.info["sfreq"],'start':istart,'duration':iduration,'uid':self.uid_list[idx]}
-                self.notify_metadata_observers()
+                self.notify_metadata_observers(self.args.backend)
 
                 # Save the data
                 if self.args.include_annotation or self.args.annotations:

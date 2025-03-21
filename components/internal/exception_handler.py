@@ -165,3 +165,52 @@ class InputExceptions:
                     if 'duration' in args.columns: args.drop(['duration'],axis=1,inplace=True)
 
         return args
+    
+    def nifti_input_exceptions(self,args):
+        """
+        Custom argument exceptions for imaging data conversion. 
+
+        Args:
+            args (Namespace): Argument parser.
+
+        Raises:
+            Exception: Generic exception to alert user to EDF specific argument configuration.
+
+        Returns:
+            args (Namespace): Updated Argument parser.
+        """
+
+        # Manage the high level bids keywords
+        if args.input_csv:
+            input_cols = PD.read_csv(args.input_csv, index_col=0, nrows=0).columns.tolist()
+            if 'subject_number' not in input_cols:
+                raise Exception("Please provide a --subject_number to the input csv.")
+            if 'session_number' not in input_cols:
+                raise Exception("Please provide a --session_number to the input csv.")
+            if 'run_number' not in input_cols:
+                raise Exception("Please provide a --run_number to the input csv.")
+            if 'uid' not in input_cols:
+                raise Exception("Please provide a --uid_number to the input csv.")
+        else:
+            if args.subject_number == None:
+                raise Exception("Please provide a --subject_number input to the command line.")
+            if args.uid_number == None:
+                raise Exception("Please provide a --uid_number input to the command line.")
+            if args.session == None:
+                while True:
+                    flag = input(f"Use Session Number {1:03d} (Yy/Nn)? ")
+                    if flag.lower() == 'y':
+                        break
+                    elif flag.lower() == 'n':
+                        raise Exception("Please provide a --session_number input to the command line.")
+                args.session=1
+            if args.run == None:
+                while True:
+                    flag = input(f"Use Run Number {1:03d} (Yy/Nn)? ")
+                    if flag.lower() == 'y':
+                        break
+                    elif flag.lower() == 'n':
+                        raise Exception("Please provide a --run_number input to the command line.")
+                args.run=1
+
+        return args

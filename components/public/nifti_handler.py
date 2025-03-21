@@ -2,6 +2,7 @@ import os
 import time
 import getpass
 from tqdm import tqdm
+#from 
 
 # Local import
 
@@ -12,7 +13,7 @@ from components.internal.exception_handler import *
 from components.internal.nlp_token_handler import *
 from components.internal.yasa_handler import *
 
-class edf_handler(Subject):
+class nifti_handler(Subject):
 
     def __init__(self,args):
         """
@@ -23,12 +24,19 @@ class edf_handler(Subject):
             args (Namespace): Argument parser.
         """
 
+        # Read or create datalake object
+        self.imaging_keys = ['data_type', 'scan_type', 'modality', 'task', 'acq', 'ce']
+        if args.datalake != None:
+            self.datalake = pickle.load(open(args.datalake,'rb'))['HUP']
+        else:
+            self.datalake = {}
+
         # Save the input objects
         IE        = InputExceptions()
-        self.args = IE.edf_input_exceptions(args)
+        self.args = IE.nifti_input_exceptions(args)
 
         # Create the object pointers
-        self.BH      = BIDS_handler_MNE(args)
+        self.BH      = BIDS_handler_pybids(args)
         self.backend = return_backend(self.args.backend)
 
         # Get the data record
@@ -49,8 +57,7 @@ class edf_handler(Subject):
         self.get_inputs()
 
         # Loop over the files individually for edf files. This option has to handle large files.
-        self.event_list = []
-        for fidx in range(len(self.edf_files)):
+        for fidx in range(len(self.nifti_files)):
 
             # Create objects to store info
             self.data_list  = []
@@ -59,12 +66,10 @@ class edf_handler(Subject):
             # Begin downloading the data
             self.load_data_manager(fidx)
 
-            # Assign events
-            self.event_manager(fidx)
-
             # Save the data
             self.save_data(fidx)
 
+            """
             # Update the data records
             self.get_data_record()
             self.new_data_record = PD.concat((self.data_record,self.new_data_record))
@@ -74,6 +79,7 @@ class edf_handler(Subject):
 
             # Update the bids ignore
             self.BH.update_ignore()
+            """
 
     def attach_objects(self):
         """
@@ -98,25 +104,14 @@ class edf_handler(Subject):
         """
 
         # Check for an input csv to manually set entries
+        self.skipcheck = True
         if self.args.input_csv != None:
             
             # Read in the input data
             input_args = PD.read_csv(self.args.input_csv)
 
             # Pull out the relevant data pointers for required columns.
-            self.edf_files = list(input_args['orig_filename'].values)
-
-            # Get the unique identifier if provided
-            if 'start' in input_args.columns:
-                self.start_times=list(input_args['start'].values)
-            else:
-                self.start_times=[self.args.start for idx in range(input_args.shape[0])]
-
-            # Get the unique identifier if provided
-            if 'duration' in input_args.columns:
-                self.durations=list(input_args['duration'].values)
-            else:
-                self.durations=[self.args.duration for idx in range(input_args.shape[0])]
+            self.nifti_files = list(input_args['orig_filename'].values)
 
             # Get the unique identifier if provided
             if 'uid' in input_args.columns:
@@ -142,29 +137,65 @@ class edf_handler(Subject):
             else:
                 self.run_list=[self.args.run for idx in range(input_args.shape[0])]
 
-            # Get the task if provided
-            if 'task' in input_args.columns:
-                self.task_list=list(input_args['task'].values)
-
-            # Get the target if provided
-            if 'target' in input_args.columns:
-                self.target_list = list(input_args['target'].values)
-
-            # Get the events if provided
-            if 'event_file' in  input_args.columns:
-                self.event_files = list(input_args['event_file'].values)
+            # Check for the imaging keywords
+            if 'data_type' in input_args.columns:
+                self.data_type_list = list(input_args['data_type'].values)
             else:
-                self.event_files = [self.args.event_file for idx in range(input_args.shape[0])]
+                ival                = self.args.imaging_data_type
+                self.data_type_list = [ival for idx in range(input_args.shape[0])]
+                if ival == None: self.skipcheck=False
+
+            if 'scan_type' in input_args.columns:
+                self.scan_type_list = list(input_args['scan_type'].values)
+            else:
+                ival                = self.args.imaging_scan_type
+                self.scan_type_list = [ival for idx in range(input_args.shape[0])]
+                if ival == None: self.skipcheck=False
+
+            if 'modality' in input_args.columns:
+                self.modality_list = list(input_args['modality'].values)
+            else:
+                ival               = self.args.imaging_modality
+                self.modality_list = [ival for idx in range(input_args.shape[0])]
+                if ival == None: self.skipcheck=False
+
+            if 'task' in input_args.columns:
+                self.task_list = list(input_args['task'].values)
+            else:
+                ival           = self.args.imaging_task
+                self.task_list = [ival for idx in range(input_args.shape[0])]
+                if ival == None: self.skipcheck=False
+
+            if 'acq' in input_args.columns:
+                self.acq_list = list(input_args['acq'].values)
+            else:
+                ival          = self.args.imaging_acq
+                self.acq_list = [ival for idx in range(input_args.shape[0])]
+                if ival == None: self.skipcheck=False
+
+            if 'ce' in input_args.columns:
+                self.ce_list = list(input_args['ce'].values)
+            else:
+                ival         = self.args.imaging_ce
+                self.ce_list = [ival for idx in range(input_args.shape[0])]
+                if ival == None: self.skipcheck=False
+
         else:
             # Get the required information if we don't have an input csv
-            self.edf_files    = [self.args.dataset]
-            self.start_times  = [self.args.start]
-            self.durations    = [self.args.duration]
-            self.uid_list     = [self.args.uid_number]
-            self.subject_list = [self.args.subject_number]
-            self.session_list = [self.args.session]
-            self.run_list     = [self.args.run]
-            self.task_list    = [self.args.task]
+            self.nifti_files    = [self.args.dataset]
+            self.uid_list       = [self.args.uid_number]
+            self.subject_list   = [self.args.subject_number]
+            self.session_list   = [self.args.session]
+            self.run_list       = [self.args.run]
+            self.data_type_list = [self.args.imaging_data_type]
+            self.scan_type_list = [self.args.imaging_scan_type]
+            self.modality_list  = [self.args.imaging_modality]
+            self.task_list      = [self.args.task]
+            self.acq_list       = [self.args.imaging_acq]
+            self.ce_list        = [self.args.imaging_ce]
+
+            if ([self.args.imaging_data_type,self.args.imaging_scan_type,self.args.imaging_modality,self.args.task,self.args.imaging_acq,self.args.imaging_ce]==None).any():
+                self.skipcheck = False
 
             if self.args.target != None:
                 self.target_list = [self.args.target]
@@ -196,68 +227,36 @@ class edf_handler(Subject):
         # Load the data exists exception handler so we can avoid already downloaded data.
         DE = DataExists(self.data_record)
 
-        # Check if we have a specific set of times for this file
-        try:
-            istart    = self.start_times[file_cntr]
-            iduration = self.durations[file_cntr]
-        except TypeError:
-            istart    = None
-            iduration = None
-
-        if DE.check_default_records(self.edf_files[file_cntr],istart,iduration,overwrite=self.args.overwrite):
-            self.load_data(self.edf_files[file_cntr])
+        if DE.check_default_records(self.nifti_files[file_cntr],None,None,overwrite=self.args.overwrite):
+            self.load_data(self.nifti_files[file_cntr])
                     
-            # If successful, notify data observer. Else, add a skip
+            # Notify data observer if successful, otherwise pad a None to the output manifest
             if self.success_flag:
-
                 # Data object is a way to package data relevant to whatever workflow you want to send to a backend. Named and packaged like this so the listener can send
                 # an expected object to different backends.
-                self.data_object = (self.data,self.channels,self.fs)
+                self.data_object = (self.data,)
                 self.notify_data_observers()
             else:
                 self.data_list.append(None)
                 self.type_list.append(None)
         else:
-            print(f"Skipping {self.edf_files[file_cntr]}.")
+            print(f"Skipping {self.nifti_files[file_cntr]}.")
             self.data_list.append(None)
             self.type_list.append(None)
 
     def load_data(self,infile):
         """
-        Load the edf data into memory and some associated objects. This is so we can make sure it is readable, and any preprocessing
-        of the data can take place. (i.e. Cleaning channel names, removing artifacts, etc.) Currently we do not do any preprocessing,
-        but leave this method in so it is easier to perform. Suggested approach would be to add a listener to the data observer.
+        Load the imaging data into memory and any associated objects. This is so we can make sure it is readable, and any preprocessing
+        of the data can take place. Currently we do not do any preprocessing, but leave this method in so it is easier to perform.
+        Suggested approach would be to add a listener to the data observer.
 
         Args:
-            infile (str): Filepath to EDF data
+            infile (str): Filepath to nifti data
         """
 
-        self.data, self.channels, self.fs, self.success_flag,error_info = self.backend.read_data(infile)
+        self.data,self.success_flag,error_info = self.backend.read_data(infile)
         if self.success_flag == False and self.args.debug:
             print(f"Load error {error_info}")
-
-    def event_manager(self,fidx):
-        """
-        Either read in events tsv, events dictionary, or grab from the back-end. Not yet implemented until consensus on code usage in the lab
-
-        Args:
-            fidx (int): File index
-        """
-
-        # Manage different event read in scenarios
-        if self.event_files[fidx] != None:
-            if self.event_files[fidx].endswith('.csv'):
-                events = PD.read_csv(self.event_files[fidx])
-            elif self.event_files[fidx].endswith('.tsv'):
-                events = PD.read_csv(self.event_files[fidx],delimiter='\t')
-        elif self.args.event_from_backend:
-            # Read in events using the backends built-in method. Like MNE event finder
-            events = None
-        else:
-            events = None
-
-        # Store to event list
-        self.event_list.append(events)
 
     def save_data(self,fidx):
         """
@@ -266,23 +265,28 @@ class edf_handler(Subject):
         
         # Loop over the data, assign keys, and save
         self.new_data_record = self.data_record.copy()
-        for idx,iraw in enumerate(self.data_list):
-            if iraw != None:
-
-                # Define start time and duration. Can differ for different filetypes
-                # May not exist for a raw edf transfer, so add a None outcome.
-                try:
-                    istart    = self.start_times[fidx]
-                    iduration = self.durations[fidx]
-                except TypeError:
-                    istart    = None
-                    iduration = None
+        for idx,idata in enumerate(self.data_list):
+            if idata != None:
 
                 # Update keywords
-                self.keywords = {'filename':self.edf_files[fidx],'root':self.args.bids_root,'datatype':self.type_list[idx],
-                                 'session':self.session_list[fidx],'subject':self.subject_list[fidx],'run':self.run_list[fidx],
-                                 'task':'rest','fs':iraw.info["sfreq"],'start':istart,'duration':iduration,'uid':self.uid_list[fidx]}
+                self.keywords = {'filename':self.nifti_files[fidx],'root':self.args.bids_root,'uid':self.uid_list[fidx],
+                                 'subject':self.subject_list[fidx],'session':self.session_list[fidx],'run':self.run_list[fidx],
+                                 'data_type':self.data_type_list[fidx],'scan_type':self.scan_type_list[fidx],'modality':self.modality_list[fidx],
+                                 'task':self.task_list[fidx],'acq':self.acq_list[fidx],'ce':self.ce_list[fidx]}
+                
+                # get the protocol name
+                json_path     = self.nifti_files[fidx].split(".ni")[0]+'.json'
+                self.metadata = json.load(open(json_path,'r'))
+                self.series   = self.metadata["ProtocolName"].lower()
+
+                # Notify metadata observer
                 self.notify_metadata_observers(self.args.backend)
+                
+                # Save is a path was successfully created
+                if self.success_flag:
+                    self.BH.save_data()
+                exit()
+                """
 
                 # Save the data
                 print(f"Converting {self.edf_files[fidx]} to BIDS...")
@@ -311,5 +315,6 @@ class edf_handler(Subject):
                     self.new_data_record = PD.concat((self.new_data_record,self.current_record))
 
                     # Run post processing
-                    self.notify_postprocess_observers()
+                    self.notify_postprocess_observers()"
+                """
         

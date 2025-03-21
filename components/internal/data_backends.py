@@ -2,43 +2,62 @@ import re
 import mne
 import numpy as np
 import pandas as PD
+import nibabel as nib
+from mne.io import read_raw_edf
 from mne.io.constants import FIFF
 
 # Local Imports
 from components.internal.observer_handler import *
 
-def return_backend(user_request='MNE'):
-    if user_request == 'MNE':
+def return_backend(user_request='mne'):
+    if user_request.lower() == 'mne':
         return MNE_handler()
+    elif user_request == 'nibabel':
+        return nibabel_handler()
 
 class backend_observer(Observer):
 
     def listen_data(self):
         
         # Send the data through the backend handler
-        idata,itype = self.backend.workflow(self.args,self.data,self.channels,self.fs)
+        idata,itype = self.backend.workflow(self.args,self.data_object)
 
         # Add objects to the shared list
         self.data_list.append(idata)
         self.type_list.append(itype)
 
         # Clean up the memory space by removing the data
-        self.data     = None
-        self.channels = None
-        self.fs       = None
+        self.data_object = None
 
 class MNE_handler:
 
     def __init__(self):
         pass
 
-    def workflow(self,args,data,channels,fs):
+    def read_data(self,inpath):
+        """
+        Read in data using the MNE backend.
+
+        Args:
+            inpath (str): Filepath to EDF data
+        """
+        try:
+            raw = read_raw_edf(inpath,verbose=False)
+            data         = raw.get_data().T
+            channels     = raw.ch_names
+            fs           = raw.info.get('sfreq')
+            success_flag = True
+            return data, channels, fs, success_flag, None
+        except Exception as e:
+            return None,None,None,False,e
+
+    def workflow(self,args,data_object):
 
         # Save the inputs to class instance
         self.args     = args
-        self.indata   = data
-        self.channels = channels
-        self.fs       = fs
+        self.indata   = data_object[0]
+        self.channels = data_object[1]
+        self.fs       = data_object[2]
 
         # Prepare the data according to the backend
         try:
@@ -157,3 +176,26 @@ class MNE_handler:
         # Store the data type to use for write out
         self.bids_datatype = datatype
         return True
+
+class nibabel_handler:
+
+    def __init__(self):
+        pass
+
+    def read_data(self,inpath):
+        try:
+            data = nib.load(inpath)
+            return data,True,None
+        except Exception as e:
+            return None,False,e
+        
+    def workflow(self,args,data_object):
+
+        # Save the inputs to class instance
+        self.args = args
+        self.data = data_object[0]
+
+        # Perform any data preprocessing here
+        # self.deface_data()
+        
+        return self.data,None

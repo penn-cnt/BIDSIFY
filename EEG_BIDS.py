@@ -9,6 +9,7 @@ from components.internal.BIDS_handler import *
 from components.public.edf_handler import edf_handler
 from components.public.iEEG_handler import ieeg_handler
 from components.public.iEEG_handler import ieeg_handler
+from components.public.nifti_handler import nifti_handler
 
 # MNE is very chatty. Turn off some warnings.
 import warnings
@@ -72,6 +73,10 @@ def raw_edf(args):
     EH = edf_handler(args)
     EH.workflow()
 
+def nifti(args):
+    NH = nifti_handler(args)
+    NH.workflow()
+
 def read_jar(args):
     """
     Kick off jar conversions.
@@ -101,6 +106,7 @@ if __name__ == '__main__':
     source_option_group.add_argument("--ieeg", action='store_true', default=False, help="iEEG data pull.")
     source_option_group.add_argument("--edf", action='store_true', default=False, help="Raw edf data pull.")
     source_option_group.add_argument("--pennsieve", action='store_true', default=False, help="Pennsieve data pull.")
+    source_option_group.add_argument("--nifti", action='store_true', default=False, help="Imaging data BIDS creation.")
 
     # Check for as yet unimplemnted pennsieve api
     partial_args, _ = parser.parse_known_args()
@@ -128,6 +134,15 @@ if __name__ == '__main__':
     ieeg_group.add_argument("--annot_layer", type=str, default='Imported Natus ENT annotations', help="Annotation layer name for annotation strings.")
     ieeg_group.add_argument("--timeout", type=int, default=60, help="Timeout interval for ieeg.org calls")
     ieeg_group.add_argument("--download_time_window", type=int, default=10, help="The length of data to pull from iEEG.org for subprocess calls (in minutes). For high frequency, many channeled data, consider lowering. ")
+
+    imaging_group = parser.add_argument_group('Imaging options')
+    imaging_group.add_argument("--datalake", type=str, help="Path to datalake of imaging protocol names mapped to BIDS keywords. (Optional)")
+    imaging_group.add_argument("--imaging_data_type", type=str, help="Data type for imaging data. (Optional. Will query if not provided.)")
+    imaging_group.add_argument("--imaging_scan_type", type=str, help="Scan type for imaging data. (Optional. Will query if not provided.)")
+    imaging_group.add_argument("--imaging_modality", type=str, help="Modality for imaging data. (Optional. Will query if not provided.)")
+    imaging_group.add_argument("--imaging_task", type=str, help="Task for imaging data. (Optional. Will query if not provided.)")
+    imaging_group.add_argument("--imaging_acq", type=str, help="Acquisition for imaging data. (Optional. Will query if not provided.)")
+    imaging_group.add_argument("--imaging_ce", type=str, help="Contrast for imaging data. (Optional. Will query if not provided.)")
 
     bids_group = parser.add_argument_group('BIDS keyword options')
     bids_group.add_argument("--uid_number", type=str, help="Unique identifier string to use when not referencing a input_csv file. Only used for single data pulls. Can be used to map the same patient across different datasets to something like an MRN behind clinical firewalls.")
@@ -166,5 +181,10 @@ if __name__ == '__main__':
         ieeg(args)
     elif args.edf:
         raw_edf(args)
+    elif args.nifti:
+        if args.backend.lower() == 'mne':
+            print("Changing default backend to nibabel... (Use --backend to manually set backend.)")
+            args.backend = 'nibabel'
+        nifti(args)
     else:
         print("Please select at least one source from the source group. (--help for all options.)")

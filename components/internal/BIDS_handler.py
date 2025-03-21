@@ -4,16 +4,25 @@ import getpass
 import pickle
 import numpy as np
 import pandas as PD
+
+# MNE imports
 from mne import Annotations
 from mne.export import export_raw
 from mne_bids import BIDSPath,write_raw_bids
+
+# Pybids imports
+from bids import BIDSLayout
+from bids.layout.writing import build_path
 
 # Local Imports
 from components.internal.observer_handler import *
 
 class BIDS_observer(Observer):
 
-    def listen_metadata(self):
+    def listen_metadata_eeg(self):
+        """
+        Checks for the needed keywords to ensure bids data is created correctly. Timeseries version.
+        """
 
         def clean_value(key,value):
             
@@ -72,8 +81,64 @@ class BIDS_observer(Observer):
             print(f"Unable to create BIDS keywords for file: {self.keywords['filename']}.")
             print(f"{self.BIDS_keywords}")
         
+    def listen_metadata_img(self):
+        """
+        Checks for the needed keywords to ensure bids data is created correctly. Imaging version.
+        """
 
-class BIDS_handler:
+        # Function to update keys to user inputted values.
+        def acquire_keys(image_keys,series):
+            """
+            Acquire keys from the user for the current protocol name
+            """
+
+            # Make the output object and query keys
+            output = {}
+
+            # Get new inputs
+            print(f"Please provide information for '{series}'")
+            for ikey in image_keys:
+                newval = input(f"    {ikey} (''=None): ")
+                if newval == '':
+                    newval = None
+                output[ikey] = newval
+        
+            return output
+
+        # if we have been given all the keys via cli, or given a user_input csv with all keys, we can skip asking the user for input
+        if not self.skipcheck:
+            # Ask the user if current keys are acceptable. If not, get new entries.,
+            while True:
+                # Check for required key values
+                print(f"Current Protocol Name: {self.series}.")
+                for ikey in self.imaging_keys:
+                    if self.keywords[ikey] == None:
+                        try:
+                            ival = self.datalake[self.series][ikey]
+                        except Exception as e:
+                            print(e)
+                            ival = None
+                        print(f"Proposed key for {ikey:10}: {ival}")
+
+                # Check for good keys and exit as needed
+                continueflag = input(f"Create BIDS data using these keywords (Yy to proceed. Nn to update keys. Ss to skip this file.)? ")
+                if continueflag.lower() == 'y':
+                    for ikey in self.datalake[self.series].keys():
+                        self.keywords[ikey] = self.datalake[self.series][ikey]
+                    break
+
+                # Obtain new keys
+                self.datalake[self.series] = acquire_keys(self.imaging_keys,self.series)
+
+        # Update the pathing in the bids handler
+        try:
+            self.BH.update_path(self.keywords)
+        except:
+            pass
+
+        
+
+class BIDS_handler_MNE:
 
     def __init__(self,args):
         self.args = args
@@ -264,3 +329,49 @@ class BIDS_handler:
                 if istr not in previous_ignores:
                     fp.write(f"{istr}\n")
             fp.close()
+
+class BIDS_handler_pybids:
+
+    def __init__(self,args):
+        self.args = args
+
+    def update_path(self,keywords):
+
+        # Create the entities object
+        entities  = {}
+
+        # Define the required keys
+        entities['subject']     = keywords['subject']
+        entities['session']     = f"{keywords['session']:02d}"
+        entities['run']         = f"{keywords['run']:02d}"
+        entities['data_type']   = keywords['data_type']
+
+        # Begin building the match string
+        match_str = 'sub-{subject}[/ses-{session}]/{data_type}/sub-{subject}[_ses-{session}]'
+
+        # Optional keys
+        if keywords['task'] != None:
+            entities['task']= keywords['task']
+            match_str += '[_task-{task}]'
+        if keywords['acq'] != None:
+            entities['acquisition'] = keywords['acq']
+            match_str += '[_acq-{acquisition}]'
+        if keywords['ce'] != None:
+            entities['ceagent'] = keywords['ce']
+            match_str += '[_ce-{ceagent}]'
+
+        # Add in the run number here
+        match_str += '[_run-{run}]'
+
+        # Remaining optional keys
+        if keywords['modality'] != None:
+            entities['modality'] = keywords['modality']
+            match_str += '[_{modality}]'
+
+        # Define the patterns for pathing    
+        patterns = [match_str]
+
+        # Set up the bids pathing
+        self.bids_path = keywords['root']+build_path(entities=entities, path_patterns=patterns)
+
+        return True
