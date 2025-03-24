@@ -102,8 +102,14 @@ We provide a few sample commands here. Note, all examples utilize a username and
 #### Multi edf
 `python EEG_BIDS.py --edf --username BJPrager --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/  --dataset /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/epipy_testing/BIDS/sub-HUP00001_ses-emu1648day01file1_task-rest_run-0002_eeg.edf --input_csv samples/inputs/sample_edf_inputs_w_target.csv --overwrite`
 
+#### Single Nifti
+`python EEG_BIDS.py --nifti --datalake datalakes/R61_datalake.pickle --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/ --dataset /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/RAW_IMAGING_DATA/data/sub-RID0280_AX_FLAIR_4_20161010125629.nii  --subject_number HUP001 --uid_number 0 --session 001 --run 01 --imaging_data_type anat --imaging_scan_type MR --imaging_modality flair --imaging_task None --imaging_acq ax --imaging_ce None`
+
+#### Multi Nifti
+`python EEG_BIDS.py --nifti --datalake datalakes/R61_datalake.pickle --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/ --input_csv samples/inputs/sample_nifti_inputs.csv`
+
 #### Find targets
-`python find_targets.py --tokendict /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/filetokens.dict --outfile sample_files`
+`python utils/find_targets.py --tokendict /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/filetokens.dict --outfile sample_files`
 
 ## Assigning a `--uid` 
 This is an additional flag used by the CNT to create a unique identifier for each patient that may not map to the BIDS subject keyword. Each dataset may have slightly different naming conventions, but this identifier is meant to let us map data back a redcap ID or MRN when viewed behind a clinical firewall. 

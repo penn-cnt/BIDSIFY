@@ -1,9 +1,13 @@
 import os
+import json
 import time
-import getpass
+import glob
 import pickle
+import shutil
+import getpass
 import numpy as np
 import pandas as PD
+from pathlib import Path as Pathlib
 
 # MNE imports
 from mne import Annotations
@@ -109,34 +113,40 @@ class BIDS_observer(Observer):
         if not self.skipcheck:
             # Ask the user if current keys are acceptable. If not, get new entries.,
             while True:
-                # Check for required key values
+
+                # Make a temporary object for the current keys
+                if self.series in self.datalake.keys():
+                    idict = self.datalake[self.series]
+                else:
+                    idict = {}
+
+                # Check for required key values with user
                 print(f"Current Protocol Name: {self.series}.")
                 for ikey in self.imaging_keys:
                     if self.keywords[ikey] == None:
                         try:
-                            ival = self.datalake[self.series][ikey]
+                            ival = idict[ikey]
                         except Exception as e:
-                            print(e)
                             ival = None
                         print(f"Proposed key for {ikey:10}: {ival}")
+                        idict[ikey] = ival
 
                 # Check for good keys and exit as needed
                 continueflag = input(f"Create BIDS data using these keywords (Yy to proceed. Nn to update keys. Ss to skip this file.)? ")
                 if continueflag.lower() == 'y':
+                    self.datalake[self.series] = idict
                     for ikey in self.datalake[self.series].keys():
                         self.keywords[ikey] = self.datalake[self.series][ikey]
                     break
 
-                # Obtain new keys
-                self.datalake[self.series] = acquire_keys(self.imaging_keys,self.series)
+                if continueflag.lower() == 'n':
+                    # Obtain new keys
+                    self.datalake[self.series] = acquire_keys(self.imaging_keys,self.series)
 
-        # Update the pathing in the bids handler
-        try:
+            # Update the pathing
             self.BH.update_path(self.keywords)
-        except:
-            pass
-
-        
+        else:
+            self.BH.update_path(self.keywords)
 
 class BIDS_handler_MNE:
 
@@ -337,41 +347,93 @@ class BIDS_handler_pybids:
 
     def update_path(self,keywords):
 
-        # Create the entities object
-        entities  = {}
+        try:
+            # Create the entities object
+            entities  = {}
 
-        # Define the required keys
-        entities['subject']     = keywords['subject']
-        entities['session']     = f"{keywords['session']:02d}"
-        entities['run']         = f"{keywords['run']:02d}"
-        entities['data_type']   = keywords['data_type']
+            # Define the required keys
+            entities['subject']     = keywords['subject']
+            entities['session']     = f"{keywords['session']}"
+            entities['run']         = f"{keywords['run']:02d}"
+            entities['data_type']   = keywords['data_type']
 
-        # Begin building the match string
-        match_str = 'sub-{subject}[/ses-{session}]/{data_type}/sub-{subject}[_ses-{session}]'
+            # Begin building the match string
+            match_str = 'sub-{subject}[/ses-{session}]/{data_type}/sub-{subject}[_ses-{session}]'
 
-        # Optional keys
-        if keywords['task'] != None:
-            entities['task']= keywords['task']
-            match_str += '[_task-{task}]'
-        if keywords['acq'] != None:
-            entities['acquisition'] = keywords['acq']
-            match_str += '[_acq-{acquisition}]'
-        if keywords['ce'] != None:
-            entities['ceagent'] = keywords['ce']
-            match_str += '[_ce-{ceagent}]'
+            # Optional keys
+            if keywords['task'] != None and keywords['task'].lower() != 'none':
+                entities['task']= keywords['task']
+                match_str += '[_task-{task}]'
+            if keywords['acq'] != None and keywords['acq'].lower() != 'none':
+                entities['acquisition'] = keywords['acq']
+                match_str += '[_acq-{acquisition}]'
+            if keywords['ce'] != None and keywords['ce'].lower() != 'none':
+                entities['ceagent'] = keywords['ce']
+                match_str += '[_ce-{ceagent}]'
 
-        # Add in the run number here
-        match_str += '[_run-{run}]'
+            # Add in the run number here
+            match_str += '[_run-{run}]'
 
-        # Remaining optional keys
-        if keywords['modality'] != None:
-            entities['modality'] = keywords['modality']
-            match_str += '[_{modality}]'
+            # Remaining optional keys
+            if keywords['modality'] != None:
+                entities['modality'] = keywords['modality']
+                match_str += '[_{modality}]'
 
-        # Define the patterns for pathing    
-        patterns = [match_str]
+            # Define the patterns for pathing    
+            patterns = [match_str]
 
-        # Set up the bids pathing
-        self.bids_path = keywords['root']+build_path(entities=entities, path_patterns=patterns)
+            # Set up the bids pathing
+            proposed_path  = build_path(entities=entities, path_patterns=patterns)
+            
+            # Make the final pathing objects if successful match was made
+            if proposed_path != None:
+                self.bids_root = keywords['root']
+                self.bids_path = keywords['root']+proposed_path
+                self.file_path = keywords['filename']
+                self.keyflags  = True
+            else:
+                self.keyflags  = False
+        except Exception as e:
+            if self.args.debug:
+                print(f"Bids generation error {e}.")
+            self.keyflags  = False
+    
+    def set_exception(self):
+        self.keyflags = False
 
-        return True
+    def save_data(self,idata):
+
+        if self.keyflags:
+            # Make sure the folder to save to exists
+            rootpath = '/'.join(self.bids_path.split('/')[:-1])
+            Pathlib(rootpath).mkdir(parents=True, exist_ok=True)
+
+            # Copy the different data files over
+            root_file     = '.'.join(self.file_path.split('.')[:-1])
+            current_files = glob.glob(f"{root_file}*")
+            for jfile in current_files:
+                extension = jfile.split('.')[-1]  
+                shutil.copyfile(jfile, f"{self.bids_path}.{extension}")
+            
+            # Check for the dataset description, which pybids requires
+            output_path = os.path.join(self.bids_root, 'dataset_description.json')
+            if not os.path.exists(output_path):
+                dataset_description = {'Name': 'Your Dataset Name','BIDSVersion': '1.6.0',
+                                        'Description': 'Description of your dataset','License': 'License information'}
+                with open(output_path, 'w') as f:
+                    json.dump(dataset_description, f, indent=4)
+
+            # Create a new BIDSLayout object
+            layout = BIDSLayout(self.bids_root)
+
+            # Save the bids layou
+            with open(output_path, 'r') as f:
+                existing_data = json.load(f)
+            json_output = layout.to_df().to_dict()
+            merged_data = {**existing_data, **json_output}
+        
+            # Save the updated data back to the JSON file
+            with open(output_path, 'w') as f:
+                json.dump(merged_data, f, indent=4)
+        else:
+            print("Invalid BIDS keywords. Could not save to BIDS format.")

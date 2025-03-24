@@ -48,7 +48,7 @@ class Observer(ABC):
     @abstractmethod
     def listen_metadata(self):
         raise NotImplementedError("Subclass must implement abstract method")
-    
+
     # Listener for backend data work
     @abstractmethod
     def listen_data(self):

@@ -69,18 +69,6 @@ class nifti_handler(Subject):
             # Save the data
             self.save_data(fidx)
 
-            """
-            # Update the data records
-            self.get_data_record()
-            self.new_data_record = PD.concat((self.data_record,self.new_data_record))
-            self.new_data_record = self.new_data_record.drop_duplicates()
-            self.new_data_record = self.new_data_record.sort_values(by=['subject_number','session_number','run_number'])
-            self.new_data_record.to_csv(self.data_record_path,index=False)
-
-            # Update the bids ignore
-            self.BH.update_ignore()
-            """
-
     def attach_objects(self):
         """
         Attach observers here so we can have each multiprocessor see the pointers correctly.
@@ -109,6 +97,9 @@ class nifti_handler(Subject):
             
             # Read in the input data
             input_args = PD.read_csv(self.args.input_csv)
+
+            # Convert nan to none
+            input_args = input_args.replace({np.nan:None})
 
             # Pull out the relevant data pointers for required columns.
             self.nifti_files = list(input_args['orig_filename'].values)
@@ -194,7 +185,8 @@ class nifti_handler(Subject):
             self.acq_list       = [self.args.imaging_acq]
             self.ce_list        = [self.args.imaging_ce]
 
-            if ([self.args.imaging_data_type,self.args.imaging_scan_type,self.args.imaging_modality,self.args.task,self.args.imaging_acq,self.args.imaging_ce]==None).any():
+            combined_args = [self.args.imaging_data_type,self.args.imaging_scan_type,self.args.imaging_modality,self.args.task,self.args.imaging_acq,self.args.imaging_ce]
+            if any([ival==None for ival in combined_args]):
                 self.skipcheck = False
 
             if self.args.target != None:
@@ -284,37 +276,4 @@ class nifti_handler(Subject):
                 
                 # Save is a path was successfully created
                 if self.success_flag:
-                    self.BH.save_data()
-                exit()
-                """
-
-                # Save the data
-                print(f"Converting {self.edf_files[fidx]} to BIDS...")
-                if self.event_list[fidx] == None:
-                    success_flag = self.BH.save_data_wo_events(iraw, debug=self.args.debug)
-                else:
-                    self.events = self.event_list[fidx]
-                    success_flag = self.BH.save_data_w_events(iraw, debug=self.args.debug)
-
-                if not success_flag and self.args.copy_edf:
-                    print(f"Copying {self.edf_files[fidx]} to BIDS...")
-                    success_flag = self.BH.copy_data(self.edf_files[fidx],'edf',self.type_list[idx],debug=self.args.debug)
-
-                # If the data wrote out correctly, update the data record
-                if success_flag:
-                    # Save the target info
-                    try:
-                        self.BH.annotation_manager(iraw)
-                        self.data_path,self.target_path = self.BH.save_targets(self.target_list[fidx])
-                    except Exception as e:
-                        if self.args.debug:
-                            print(f"Target Writout error: {e}")
-                    
-                    # Add the datarow to the records
-                    self.current_record  = self.BH.make_records('edf_file')
-                    self.new_data_record = PD.concat((self.new_data_record,self.current_record))
-
-                    # Run post processing
-                    self.notify_postprocess_observers()"
-                """
-        
+                    self.BH.save_data(idata)

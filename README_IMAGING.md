@@ -13,5 +13,5 @@ To do this, the imaging data requires a .json file associated with the data file
 ## Example Usage
 
 ```
-python IMAGING_BIDS.py --dataset ~/Documents/GitHub/CNT-codehub/user_data/RAW_IMAGING_DATA --bidsroot ~/Documents/GitHub/CNT-codehub/user_data/IMG_BIDS --subject 001 --datalake ~/Documents/GitHub/CNT-codehub/user_data/RAW_IMAGING_DATA/R61_datalake.pickle
+python EEG_BIDS.py --nifti --datalake ~/Documents/GitHub/CNT-codehub/user_data/RAW_IMAGING_DATA/R61_datalake.pickle --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/ --input_csv samples/inputs/sample_nifti_inputs.csv
 ```
