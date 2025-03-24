@@ -11,7 +11,7 @@ from components.public.iEEG_handler import ieeg_handler
 from components.public.iEEG_handler import ieeg_handler
 from components.public.nifti_handler import nifti_handler
 
-# MNE is very chatty. Turn off some warnings.
+# MNE is very chatty. Turn off some warnings. Shouldn't supress legit errors.
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=RuntimeWarning)
@@ -20,37 +20,112 @@ def print_examples():
     """
     This function is to provide samples of input tables for mass BIDS creation.
     """
+
+    def resize_table_entry(DF,colname):
+        max_width = np.floor(0.2*os.get_terminal_size().columns)
+        pad_width = int(0.5*max_width)
+        values    = DF[colname].values
+        for idx,ival in enumerate(values):
+            if len(ival) > max_width:
+                newval = f"{ival[:pad_width]}...{ival[-pad_width:]}"
+            else:
+                newval = ival
+            values[idx] = newval
+        DF.loc[:,[colname]] = values
+        return DF
+
+    def print_table(inpath):
         
-    # Read in the sample time csv
-    script_dir  = '/'.join(os.path.abspath(__file__).split('/')[:-1])
-    example_csv = PD.read_csv(f"{script_dir}/samples/inputs/download_by_times.csv")
+        # Read in the data
+        script_dir  = '/'.join(os.path.abspath(__file__).split('/')[:-1])
+        example_csv = PD.read_csv(f"{script_dir}{inpath}")
+
+        # Make sure the filename path isnt too long
+        example_csv = resize_table_entry(example_csv,'orig_filename')
+        if 'target' in example_csv.columns:
+            example_csv = resize_table_entry(example_csv,'target')
+        
+        # Initialize a pretty table for easy reading
+        HRuleStyle(1)
+        table = PrettyTable()
+        table.field_names = example_csv.columns
+        for irow in example_csv.index:
+            iDF           = example_csv.loc[irow]
+            formatted_row = [iDF[icol] for icol in example_csv.columns]
+            table.add_row(formatted_row)
+        table.align['path'] = 'l'
+        print(table)
+
+    ######################################################################################
+    ##### General message to remind user to check the readme for more documentation. #####
+    ######################################################################################
+
+    # Print a header block for the ieeg.org section.
+    print("################################")
+    print("####### BIDSIFY Examples #######")
+    print("################################")
+    print("These are a few of the most common use cases for BDISIFY.py.")
+    print("For a more in-depth exaplanation of various options, please refer to the README.md located at the repository here:")
+    print("    https://github.com/penn-cnt/EEG_BIDS")
+    print("\n\n")
+
+    ##############################################
+    ##### Example of how to convert EDF data #####
+    ##############################################
+
+    # Print a header block for the EDF section.
+    print("############################")
+    print("####### EDF Commands #######")
+    print("############################")
+
+    # Read in the samples without targets
+    print("Convert a single EDF file without a csv, using command line keyword calls. Read in a target file to associate with the bids dataset.")
+    print("Example instantiation:")
+    print("    python BIDSIFY.py --edf --bids_root <path-to-output-root-directory> --dataset <path-to-edf> --subject HUP001 --uid_number 1 --session 1 --run 1 --target <path-to-target-file>")
+    print("\n\n")
+
+    # Read in the samples without targets
+    print("Convert multiple EDF files into a BIDS directory.")
+    print_table('/samples/inputs/sample_edf_inputs.csv')
+    print("Path to sample csv: ./samples/inputs/sample_edf_inputs.csv")
+    print("Example instantiation:")
+    print("    python BIDSIFY.py --edf --bids_root <path-to-output-root-directory> --input_csv <path-to-csv>")
+    print("\n\n")
+
+    # Read in the samples with targets
+    print("Convert multiple EDF files into a BIDS directory with target data.")
+    print_table('/samples/inputs/sample_edf_inputs_w_target.csv')
+    print("Path to sample csv: ./samples/inputs/sample_edf_inputs_w_target.csv")
+    print("Example instantiation:")
+    print("    python BIDSIFY.py --edf --bids_root <path-to-output-root-directory> --input_csv <path-to-csv>")
+    print("\n\n")
+
+    ##########################################################
+    ##### Example of how to download data from iEEG.org. #####
+    ##########################################################
     
-    # Initialize a pretty table for easy reading
-    HRuleStyle(1)
-    table = PrettyTable()
-    table.field_names = example_csv.columns
-    for irow in example_csv.index:
-        iDF           = example_csv.loc[irow]
-        formatted_row = [iDF[icol] for icol in example_csv.columns]
-        table.add_row(formatted_row)
-    table.align['path'] = 'l'
-    print("Sample inputs that explicitly set the download times.")
-    print(table)
+    # Print a header block for the ieeg.org section.
+    print("#################################")
+    print("####### iEEG.org Commands #######")
+    print("#################################")
+
+    # Read in the sample time csv
+    print("Download multiple files from iEEG.org using a csv file with download times and storing specific annotations/targets as sidecar information.")
+    print_table('/samples/inputs/download_by_times.csv')
+    print("Path to sample csv: ./samples/inputs/download_by_times.csv")
+    print("Example instantiation:")
+    print("    python BIDSIFY.py --ieeg --username <ieeg.org-username> --bids_root <path-to-output-root-directory>  --input_csv <path-to-csv>")
+    print("\n\n")
 
     # Read in the sample annotation csv
-    script_dir  = '/'.join(os.path.abspath(__file__).split('/')[:-1])
-    example_csv = PD.read_csv(f"{script_dir}/samples/inputs/download_by_annotations.csv")
-    
-    # Initialize a pretty table for easy reading
-    table = PrettyTable()
-    table.field_names = example_csv.columns
-    for irow in example_csv.index:
-        iDF           = example_csv.loc[irow]
-        formatted_row = [iDF[icol] for icol in example_csv.columns]
-        table.add_row(formatted_row)
-    table.align['path'] = 'l'
-    print("Sample inputs that use annotations.")
-    print(table)
+    print("Download multiple files from iEEG.org using a csv file with filenames, downloading all annotation clip layers from the dataset, and storing specific annotations/targets as sidecar information to each clip.")
+    print_table('/samples/inputs/download_by_annotations.csv')
+    print("Path to sample csv: ./samples/inputs/download_by_anotations.csv")
+    print("Example instantiation:")
+    print("    python BIDSIFY.py --ieeg --username <ieeg.org-username> --bids_root <path-to-output-root-directory>  --annotations --input_csv <path-to-csv>")
+    print("\n\n")
+
+
 
 def ieeg(args):
     """
