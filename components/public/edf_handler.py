@@ -13,6 +13,28 @@ from components.internal.nlp_token_handler import *
 from components.internal.yasa_handler import *
 
 class edf_handler(Subject):
+    """
+    This class manages the methods that enable EDF conversion to BIDS structure.
+    The method 'workflow' manages the basic steps required.
+    It is the subject object that maintains a list of observers. 
+    These observers enable a variety of automated functionality.
+
+    As of 03/24/25, the observers fall into the following categories:
+    data observers:
+        - Methods that perform any data preprocessing that need to occur before being saved.
+            - By default, no preprocessing is done. But this can be modified easily by changing the behavior of components.internal.data_backends for the relevant back-end. (MNE_handler by default)
+    meta observers:
+        - Methods that create the required metadata for BIDS generation.
+    postprocessor observers:
+        - Methods that act on the complete BIDS file or BIDS dataset.
+            - At present, the post processor acts on each file after generation. This can be modified by changing when notify_postprocess_observers is called in save_data method.
+            - Currently we include file token creation and yasa sleep staging. But this can be changed in the attach_objects methods. 
+            - Currently only used on EDF datasets. But attaching new methods to the attach_objects method in another handler will enable the same behavior.
+                - Argparse can be given new keywords to modify logic for postprocessor usage.
+            
+    Args:
+        Subject (class): Subject class that allows for linking observers to this class
+    """
 
     def __init__(self,args):
         """
@@ -23,15 +45,15 @@ class edf_handler(Subject):
             args (Namespace): Argument parser.
         """
 
-        # Save the input objects
+        # Manage input argument exceptions and then save the data
         IE        = InputExceptions()
         self.args = IE.edf_input_exceptions(args)
 
-        # Create the object pointers
+        # Create the object pointers to the backend and bids library of choice
         self.BH      = BIDS_handler_MNE(args)
         self.backend = return_backend(self.args.backend)
 
-        # Get the data record
+        # Get the data record of existing files within this BIDS dataset.
         self.get_data_record()
 
         # Create objects that interact with observers
@@ -77,17 +99,24 @@ class edf_handler(Subject):
 
     def attach_objects(self):
         """
-        Attach observers here so we can have each multiprocessor see the pointers correctly.
+        Attach observers here.
+        Doing so within the workflow allows potential multiprocessors to see the pointers correctly.
         """
 
         # Create the observer objects
-        self._meta_observers        = []
         self._data_observers        = []
+        self._meta_observers        = []
         self._postprocess_observers = []
 
-        # Attach observers
-        self.add_meta_observer(BIDS_observer)
+        ##########################
+        ##### Data Observers #####
+        ##########################
+
+        # Manages how to read in and prepare data for saving to disk for the currently selected backend
         self.add_data_observer(backend_observer)
+
+        
+        self.add_meta_observer(BIDS_observer)
         self.add_postprocessor_observer(nlp_token_observer)
         self.add_postprocessor_observer(yasa_observer)
 
@@ -210,9 +239,9 @@ class edf_handler(Subject):
             # If successful, notify data observer. Else, add a skip
             if self.success_flag:
 
-                # Data object is a way to package data relevant to whatever workflow you want to send to a backend. Named and packaged like this so the listener can send
-                # an expected object to different backends.
-                self.data_object = (self.data,self.channels,self.fs)
+                # Data object is a way to package data relevant to whatever workflow you want to send to a backend. Named and packaged like this 
+                # so the listener can send an expected object to different backends.
+                self.data_object = (self.data,self.channels,self.fs,self.annotations)
                 self.notify_data_observers()
             else:
                 self.data_list.append(None)
@@ -232,7 +261,7 @@ class edf_handler(Subject):
             infile (str): Filepath to EDF data
         """
 
-        self.data, self.channels, self.fs, self.success_flag,error_info = self.backend.read_data(infile)
+        self.data, self.channels, self.fs, self.annotations, self.success_flag,error_info = self.backend.read_data(infile)
         if self.success_flag == False and self.args.debug:
             print(f"Load error {error_info}")
 

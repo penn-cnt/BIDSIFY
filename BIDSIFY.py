@@ -10,6 +10,7 @@ from components.public.edf_handler import edf_handler
 from components.public.iEEG_handler import ieeg_handler
 from components.public.iEEG_handler import ieeg_handler
 from components.public.nifti_handler import nifti_handler
+from components.public.pennsieve_handler import pennsieve_handler
 
 # MNE is very chatty. Turn off some warnings. Shouldn't supress legit errors.
 import warnings
@@ -100,6 +101,29 @@ def print_examples():
     print("    python BIDSIFY.py --edf --bids_root <path-to-output-root-directory> --input_csv <path-to-csv>")
     print("\n\n")
 
+    #########################################################
+    ##### Example of how to convert NIFTI data to BIDS. #####
+    #########################################################
+    
+    # Print a header block for the ieeg.org section.
+    print("##############################")
+    print("####### NIFTI Commands #######")
+    print("##############################")
+
+    # How to convert a single nifti file
+    print("Convert a single NIFTI file without a csv, using command line keyword calls.")
+    print("Example instantiation:")
+    print("    python BIDSIFY.py --nifti --bids_root <path-to-output-root-directory> --dataset <path-to-nifti>  --subject_number HUP001 --uid_number 0 --session 001 --run 01 --imaging_data_type anat --imaging_scan_type MR --imaging_modality flair --imaging_task None --imaging_acq ax --imaging_ce None")
+    print("\n\n")
+
+    # Read in the samples with targets
+    print("Convert multiple NIFTI files into a BIDS directory. Also use a datalake to help convert data not in the csv using known protocol names.")
+    print_table('/samples/inputs/sample_nifti_inputs.csv')
+    print("Path to sample csv: ./samples/inputs/sample_nifti_inputs.csv")
+    print("Example instantiation:")
+    print("    python BIDSIFY.py --nifti --datalake datalakes/R61_datalake.pickle --bids_root  <path-to-output-root-directory> --input_csv <path-to-csv>")
+    print("\n\n")
+
     ##########################################################
     ##### Example of how to download data from iEEG.org. #####
     ##########################################################
@@ -124,8 +148,6 @@ def print_examples():
     print("Example instantiation:")
     print("    python BIDSIFY.py --ieeg --username <ieeg.org-username> --bids_root <path-to-output-root-directory>  --annotations --input_csv <path-to-csv>")
     print("\n\n")
-
-
 
 def ieeg(args):
     """
@@ -152,16 +174,16 @@ def nifti(args):
     NH = nifti_handler(args)
     NH.workflow()
 
-def read_jar(args):
+def pennsieve(args):
     """
-    Kick off jar conversions.
+    Perform pennsieve data pull.
 
     Args:
         args (Namespace): Argument parser.
     """
 
-    JH = jar_handler(args)
-    JH.workflow()
+    PH = pennsieve_handler(args)
+    PH.workflow()
 
 if __name__ == '__main__':
 
@@ -251,7 +273,7 @@ if __name__ == '__main__':
     # Basic clean-up of path names
     if args.bids_root[-1] != '/': args.bids_root+='/'
 
-    # Main Logic
+    # Select use case
     if args.ieeg:
         ieeg(args)
     elif args.edf:

@@ -46,10 +46,11 @@ class MNE_handler:
             data         = raw.get_data().T
             channels     = raw.ch_names
             fs           = raw.info.get('sfreq')
+            annotations  = raw.annotations
             success_flag = True
-            return data, channels, fs, success_flag, None
+            return data, channels, fs, annotations, success_flag, None
         except Exception as e:
-            return None,None,None,False,e
+            return None,None,None,None,False,e
 
     def workflow(self,args,data_object):
 
@@ -58,6 +59,7 @@ class MNE_handler:
         self.indata   = data_object[0]
         self.channels = data_object[1]
         self.fs       = data_object[2]
+        self.annots   = data_object[3]
 
         # Prepare the data according to the backend
         try:
@@ -65,6 +67,7 @@ class MNE_handler:
             if passflag:
                 self.make_info()
                 self.make_raw()
+                self.attach_annotations()
             else:
                 self.irow = None
                 self.bids_datatype = None
@@ -97,6 +100,14 @@ class MNE_handler:
         for idx,ichannel in enumerate(self.channels):
             if self.channel_types.loc[ichannel]['type'] in ['seeg','eeg']:
                 self.data_info['chs'][idx]['unit'] = FIFF.FIFF_UNIT_V
+
+    def attach_annotations(self):
+
+        # Make a new annotation object to ensure no measurement date issue mismatches
+        new_annot = mne.Annotations(onset=self.annots.onset,duration=self.annots.duration,description=self.annots.description)
+
+        # Set annotation to raw object
+        self.iraw.set_annotations(new_annot)
 
     def get_channel_type(self, threshold=15):
         """

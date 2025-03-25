@@ -18,17 +18,39 @@ from components.internal.exception_handler import *
 from components.internal.data_backends import *
 
 class ieeg_handler(Subject):
+    """
+    This class manages the methods that enable downloads from iEEG.org and makes a BIDS dataset locally.
+    The method 'workflow' manages the basic steps required.
+    It is the subject object that maintains a list of observers. 
+    These observers enable a variety of automated functionality.
+
+    As of 03/24/25, the observers fall into the following categories:
+    data observers:
+        - Methods that perform any data preprocessing that need to occur before being saved.
+            - By default, no preprocessing is done. But this can be modified easily by changing the behavior of components.internal.data_backends for the relevant back-end. (MNE_handler by default)
+    meta observers:
+        - Methods that create the required metadata for BIDS generation.
+    postprocessor observers:
+        - Methods that act on the complete BIDS file or BIDS dataset.
+            - At present, the post processor acts on each file after generation. This can be modified by changing when notify_postprocess_observers is called in save_data method.
+            - Currently we include file token creation and yasa sleep staging. But this can be changed in the attach_objects methods. 
+            - Currently only used on EDF datasets. But attaching new methods to the attach_objects method in another handler will enable the same behavior.
+                - Argparse can be given new keywords to modify logic for postprocessor usage.
+            
+    Args:
+        Subject (class): Subject class that allows for linking observers to this class
+    """
 
     def __init__(self,args):
 
-        # Save the input objects
+        # Manage input argument exceptions and then save the data
         self.args = args
 
-        # Create the object pointers
+        # Create the object pointers to the backend and bids library of choice
         self.BH      = BIDS_handler_MNE(args)
         self.backend = return_backend(args.backend)
 
-        # Get the data record
+        # Create the object pointers to the backend and bids library of choice
         self.get_data_record()
 
         # Create objects that interact with observers
@@ -378,7 +400,6 @@ class ieeg_handler(Subject):
             # Store the results
             self.annotations[self.ieeg_files[idx]][self.run_list[idx]][event_time_shift] = desc
 
-
     def ieegfile_to_keys(self):
         """
         Use the iEEG.org filename to determine keywords.
@@ -523,7 +544,6 @@ class ieeg_handler(Subject):
                     print("Unable to save data.")
                     if self.args.debug:
                         print(f"Error {e}")
-
 
     def save_data(self):
         """
