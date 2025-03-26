@@ -123,7 +123,8 @@ class edf_handler(Subject):
         ##########################
 
         # Manages how to read in and prepare data for saving to disk for the currently selected backend
-        self.add_data_observer(phi_observer)
+        if self.args.anonymize:
+            self.add_data_observer(phi_observer)
         self.add_data_observer(backend_observer)
 
         # Add a metadata observer. In this context, if data can be read in and prepared for saving to BIDS, create the proposed BIDS pathing.

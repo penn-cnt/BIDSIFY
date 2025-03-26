@@ -245,8 +245,7 @@ class ieeg_handler(Subject):
             input_args = PD.read_csv(self.args.input_csv)
 
             # Check for any exceptions in the inputs
-            IE         = InputExceptions()
-            input_args = IE.ieeg_input_exceptions(input_args)
+            input_args = self.input_exceptions(input_args)
 
             # Grab the relevant indices if using multithreading
             if multiflag:
@@ -453,6 +452,9 @@ class ieeg_handler(Subject):
         # Loop over the requested data
         for idx in range(len(self.ieeg_files)):
 
+            # Make a data validation flag
+            self.valid_data = True
+
             # Download the data
             if self.args.annotations:
                 self.download_data(self.ieeg_files[idx],0,0,True)
@@ -473,7 +475,7 @@ class ieeg_handler(Subject):
                     if self.success_flag:
                         # Data object is a way to package data relevant to whatever workflow you want to send to a backend. Named and packaged like this so the listener can send
                         # an expected object to different backends.
-                        self.data_object = (self.data,self.channels,self.fs)
+                        self.data_object = (self.data,self.channels,self.fs,self.annotations)
                         self.notify_data_observers()
                     else:
                         self.data_list.append(None)
@@ -504,7 +506,7 @@ class ieeg_handler(Subject):
                     if self.success_flag:
                         # Data object is a way to package data relevant to whatever workflow you want to send to a backend. Named and packaged like this so the listener can send
                         # an expected object to different backends.
-                        self.data_object = (self.data,self.channels,self.fs)
+                        self.data_object = (self.data,self.channels,self.fs,self.annotations)
                         self.notify_data_observers()
                     else:
                         self.data_list.append(None)

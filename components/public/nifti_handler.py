@@ -110,7 +110,8 @@ class nifti_handler(Subject):
         self._postprocess_observers = []
 
         # Attach observers
-        self.add_data_observer(phi_observer)
+        if self.args.anonymize:
+            self.add_data_observer(phi_observer)
         self.add_data_observer(backend_observer)
         self.add_meta_observer(BIDS_observer)        
         self.add_postprocessor_observer(nlp_token_observer)

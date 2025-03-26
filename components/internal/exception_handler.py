@@ -139,33 +139,6 @@ class InputExceptions:
 
         return args
     
-    def ieeg_input_exceptions(self,args):
-
-        # Raise some exceptions if we find data we can't work with
-        if 'orig_filename' not in args.columns:
-            raise Exception("Please provide 'orig_filename' in the input csv file.")
-        elif 'orig_filename' in args.columns:
-            if 'start' not in args.columns and not self.args.annotations:
-                raise Exception("A 'start' column is required in the input csv if not using the --annotations flag.")
-            elif 'duration' not in args.columns and not self.args.annotations:
-                raise Exception("A 'duration' column is required in the input csv if not using the --annotations flag.")
-        
-        # Handle situations where the user requested annotations but also provided times
-        if self.args.annotations:
-            if 'start' in args.columns or 'duration' in args.columns:
-                userinput = ''
-                while userinput.lower() not in ['y','n']:
-                    userinput = input("--annotations flag set to True, but start times and durations were provided in the input. Override these times with annotations clips (Yy/Nn)? ")
-                if userinput.lower() == 'n':
-                    print("Ignoring --annotation flag. Using user provided times.")
-                    self.args.annotations = False
-                if userinput.lower() == 'y':
-                    print("Ignoring user provided times in favor of annotation layer times.")
-                    if 'start' in args.columns: args.drop(['start'],axis=1,inplace=True)
-                    if 'duration' in args.columns: args.drop(['duration'],axis=1,inplace=True)
-
-        return args
-    
     def nifti_input_exceptions(self,args):
         """
         Custom argument exceptions for imaging data conversion. 

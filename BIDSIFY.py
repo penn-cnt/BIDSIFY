@@ -238,7 +238,7 @@ if __name__ == '__main__':
     data_group.add_argument("--input_csv", type=str, help="CSV file with the relevant filenames, start times, durations, and keywords. For an example, use the --example_input flag.")
     data_group.add_argument("--dataset", type=str, help="Dataset name/Path to dataset. Useful if working with just one dataset,")
     data_group.add_argument("--overwrite", action='store_true', default=False, help="Overwrite existing records with the same bids keywords.")
-    data_group.add_argument("--anonymize", action='store_true', default=False, help="Anonymize the data before writeout. (Currently only anonymizes EDF data.)")
+    data_group.add_argument("--anonymize", action='store_true', default=False, help="Anonymize the data before writeout and/or check for PHI.")
 
     ieeg_group = parser.add_argument_group('iEEG connection options')
     ieeg_group.add_argument("--username", type=str, help="Username for iEEG.org.")

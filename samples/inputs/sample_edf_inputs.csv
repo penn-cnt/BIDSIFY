@@ -1,4 +1,4 @@
 orig_filename,uid,subject_number,session_number,run_number,task
-C:/Users/bjprager/eeg_001.edf,0,HUP0001,001,3,rest
-C:/Users/bjprager/eeg_002.edf,0,HUP0001,001,4,rest
-C:/Users/bjprager/eeg_003.edf,0,HUP0001,001,5,rest
+C:/Users/bjprager/eeg_001.edf,0,HUP001,001,3,rest
+C:/Users/bjprager/eeg_002.edf,0,HUP001,001,4,rest
+C:/Users/bjprager/eeg_003.edf,0,HUP001,001,5,rest

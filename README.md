@@ -99,14 +99,14 @@ We provide a few sample commands here. Note, all examples utilize a username and
 #### Single edf
 `python BIDSIFY.py --edf --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/  --dataset /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/epipy_testing/BIDS/sub-HUP00001_ses-emu1648day01file1_task-rest_run-0002_eeg.edf --subject HUP001 --uid_number 1 --session 1 --run 1 --overwrite --target /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/epipy_testing/BIDS/sub-HUP00001_ses-emu1648day01file1_task-rest_run-0002_eeg_targets.pickle`
 
-#### Multi edf
-`python BIDSIFY.py --edf  --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/ --input_csv samples/inputs/sample_edf_inputs_w_target.csv --overwrite`
+#### Multi edf with anonymization/phi checks
+`python BIDSIFY.py --edf  --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/ --input_csv samples/inputs/sample_edf_inputs_w_target.csv --anonymize`
 
 #### Download from iEEG.org using an input table with times
-`python BIDSIFY.py --ieeg --username BJPrager --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/  --input_csv utils/acquisition/BIDS/samples/inputs/download_by_times.csv`
+`python BIDSIFY.py --ieeg --username BJPrager --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/  --input_csv samples/inputs/download_by_times.csv`
 
 #### Download from iEEG.org using an input table with annotation layers
-`python BIDSIFY.py --ieeg --username BJPrager --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/  --annotations --input_csv utils/acquisition/BIDS/samples/inputs/download_by_annotations.csv`
+`python BIDSIFY.py --ieeg --username BJPrager --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/  --annotations --input_csv samples/inputs/download_by_annotations.csv`
 
 #### Single Nifti
 `python BIDSIFY.py --nifti --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/ --dataset /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/RAW_IMAGING_DATA/data/sub-RID0280_AX_FLAIR_4_20161010125629.nii  --subject_number HUP001 --uid_number 0 --session 001 --run 01 --imaging_data_type anat --imaging_scan_type MR --imaging_modality flair --imaging_task None --imaging_acq ax --imaging_ce None`
