@@ -1,15 +1,16 @@
-# EEG BIDS Creation
+# BIDSIFY
 
-EEG Bids is a package designed to convert timeseries data into BIDS-compliant datasets. As the push for standardized datasets grows, harmonizing how we collect and store data has become increasingly important.
+BIDSIFY is a package designed to convert various epilepsy data sources into BIDS-compliant datasets without internet connection or third party data hosting. As the push for standardized datasets grows, harmonizing how we collect and store data has become increasingly important.
 
-## Features
+## Supported Data Sources
 
-Currently, the package supports:
+Currently, the package supports the following data sources:
 
-- Pulling data from iEEG.org (using the `--ieeg` flag)
 - Converting raw EDF files to BIDS format (using the `--edf` flag)
-- Converting csv files to BIDS format (using the `--jar` flag)
-    - **Note**: This is an experimental feature for Pennsieve and is not well supported yet.
+- Pulling data from iEEG.org (using the `--ieeg` flag)
+- Nifti data (using the --nifti flag)
+- Pennsieve (using the --pensieve flag)
+    - **Note**: This option is not yet fully implemented as the Pennsieve team works on a Python API.
 
 We aim to make it easy to add new data pull methods by using an observer coding style, allowing new code to integrate with just a few lines. For more details, refer to the contribution section.
 
