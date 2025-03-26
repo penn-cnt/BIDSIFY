@@ -7,6 +7,7 @@ from tqdm import tqdm
 
 from components.internal.BIDS_handler import *
 from components.internal.data_backends import *
+from components.internal.PHI_handler import *
 from components.internal.observer_handler import *
 from components.internal.exception_handler import *
 from components.internal.nlp_token_handler import *
@@ -49,8 +50,9 @@ class edf_handler(Subject):
         IE        = InputExceptions()
         self.args = IE.edf_input_exceptions(args)
 
-        # Create the object pointers to the backend and bids library of choice
+        # Create the object pointers to the backend, phi, and bids library of choice
         self.BH      = BIDS_handler_MNE(args)
+        self.PHI     = phi_handler()
         self.backend = return_backend(self.args.backend)
 
         # Get the data record of existing files within this BIDS dataset.
@@ -74,11 +76,16 @@ class edf_handler(Subject):
         self.event_list = []
         for fidx in range(len(self.edf_files)):
 
-            # Create objects to store info
+            # Make a data validation flag. Originally we used a phi flag, but this is more general, in case some new use-case comes up to stop data getting loaded into memory.
+            self.valid_data = True
+
+            # Create objects to store info.
+            # Note. This is inside the file loop since iEEG.org files can be downloaded by clip layer, making a single origin file go to many bids files.
+            # If a single EDF is to be broken up, this same logic can apply here. But it could be moved outside the loop if that is an unlikely use-case.
             self.data_list  = []
             self.type_list  = []
 
-            # Begin downloading the data
+            # Begin loading the data
             self.load_data_manager(fidx)
 
             # Assign events
@@ -95,7 +102,10 @@ class edf_handler(Subject):
             self.new_data_record.to_csv(self.data_record_path,index=False)
 
             # Update the bids ignore
-            self.BH.update_ignore()
+            try:
+                self.BH.update_ignore()
+            except AttributeError:
+                pass
 
     def attach_objects(self):
         """
@@ -113,10 +123,13 @@ class edf_handler(Subject):
         ##########################
 
         # Manages how to read in and prepare data for saving to disk for the currently selected backend
+        self.add_data_observer(phi_observer)
         self.add_data_observer(backend_observer)
 
-        
+        # Add a metadata observer. In this context, if data can be read in and prepared for saving to BIDS, create the proposed BIDS pathing.
         self.add_meta_observer(BIDS_observer)
+
+        # Add any post processing scripts
         self.add_postprocessor_observer(nlp_token_observer)
         self.add_postprocessor_observer(yasa_observer)
 
@@ -219,7 +232,7 @@ class edf_handler(Subject):
 
     def load_data_manager(self,file_cntr):
         """
-        Loop over the ieeg file list and download data. If annotations, does a first pass to get annotation layers and times, then downloads.
+        Loop over the EDF file list and load data. If unable to load data, or the data observers find issues, append a None to the output manifest.
         """
 
         # Load the data exists exception handler so we can avoid already downloaded data.
@@ -234,7 +247,10 @@ class edf_handler(Subject):
             iduration = None
 
         if DE.check_default_records(self.edf_files[file_cntr],istart,iduration,overwrite=self.args.overwrite):
-            self.load_data(self.edf_files[file_cntr])
+            
+            # Load data using the appropriate backend
+            self.file_name = self.edf_files[file_cntr]
+            self.load_data(self.file_name)
                     
             # If successful, notify data observer. Else, add a skip
             if self.success_flag:
@@ -244,10 +260,11 @@ class edf_handler(Subject):
                 self.data_object = (self.data,self.channels,self.fs,self.annotations)
                 self.notify_data_observers()
             else:
+                print(f"Skipping {self.file_name}.")
                 self.data_list.append(None)
                 self.type_list.append(None)
         else:
-            print(f"Skipping {self.edf_files[file_cntr]}.")
+            print(f"Skipping {self.file_name}.")
             self.data_list.append(None)
             self.type_list.append(None)
 
@@ -280,7 +297,7 @@ class edf_handler(Subject):
             elif self.event_files[fidx].endswith('.tsv'):
                 events = PD.read_csv(self.event_files[fidx],delimiter='\t')
         elif self.args.event_from_backend:
-            # Read in events using the backends built-in method. Like MNE event finder
+            # Read in events using the backends built-in method. Like MNE event finder. Not yet implemented
             events = None
         else:
             events = None

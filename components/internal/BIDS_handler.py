@@ -192,7 +192,6 @@ class BIDS_handler_MNE:
 
         def get_annot(iannot):
             return iannot['description']
-
         self.alldesc = '||'.join(list(map(get_annot,raw.annotations)))
 
     def save_targets(self,target):
@@ -210,7 +209,7 @@ class BIDS_handler_MNE:
 
         # Check for the merged descriptions. Only important for iEEG.org calls.
         if hasattr(self,'alldesc'):
-            target_dict['description'] ='||'.join(self.alldesc)
+            target_dict['description'] = self.alldesc
 
         # Store the targets
         fp = open(self.target_path,"wb")

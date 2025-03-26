@@ -22,7 +22,18 @@ def print_examples():
     This function is to provide samples of input tables for mass BIDS creation.
     """
 
-    def resize_table_entry(DF,colname):
+    def resize_table_entry(DF,colname,screenwidth=0.2):
+        """
+        Create a shortened string for a given dataframe column. Allows better displays when used with things like prettytable.
+
+        Args:
+            DF (pandas dataframe): A dataframe with a string column to resize.
+            colname (string): Column name in dataframe with strings to resize.
+            screenwidth (float, Optional): Percent of the screen width to set as column maximum width.
+
+        Returns:
+            dataframe: Dataframe with new shortened strings.
+        """
         max_width = np.floor(0.2*os.get_terminal_size().columns)
         pad_width = int(0.5*max_width)
         values    = DF[colname].values
@@ -36,6 +47,12 @@ def print_examples():
         return DF
 
     def print_table(inpath):
+        """
+        Print example inputs from an input csv file.
+
+        Args:
+            inpath (string,filepath)): Relative path from the script directory to the example table.
+        """
         
         # Read in the data
         script_dir  = '/'.join(os.path.abspath(__file__).split('/')[:-1])
@@ -220,6 +237,8 @@ if __name__ == '__main__':
     data_group.add_argument("--data_record", type=str, default='subject_map.csv', help="Filename for data record. Outputs to bids_root.")
     data_group.add_argument("--input_csv", type=str, help="CSV file with the relevant filenames, start times, durations, and keywords. For an example, use the --example_input flag.")
     data_group.add_argument("--dataset", type=str, help="Dataset name/Path to dataset. Useful if working with just one dataset,")
+    data_group.add_argument("--overwrite", action='store_true', default=False, help="Overwrite existing records with the same bids keywords.")
+    data_group.add_argument("--anonymize", action='store_true', default=False, help="Anonymize the data before writeout. (Currently only anonymizes EDF data.)")
 
     ieeg_group = parser.add_argument_group('iEEG connection options')
     ieeg_group.add_argument("--username", type=str, help="Username for iEEG.org.")
@@ -247,27 +266,27 @@ if __name__ == '__main__':
     bids_group.add_argument("--session", type=str, help="Session string to use when not referencing a input_csv file. Only used for single data pulls.")
     bids_group.add_argument("--run", type=int, help="Run string to use when not referencing a input_csv file. Only used for single data pulls.")
     bids_group.add_argument("--task", type=str, default='rest', help="Task string to use when not referencing a input_csv file value. Used to populate all entries if not explicitly set.")
+    bids_group.add_argument("--target", type=str, help="Target to associate with the data. (i.e. PNES/EPILEPSY/etc.)")
     bids_group.add_argument("--event_file", type=str, default=None, help="Path to an events file, if applicable.")
-
+    
     multithread_group = parser.add_argument_group('Multithreading Options')
     multithread_group.add_argument("--multithread", action='store_true', default=False, help="Multithreaded download.")
     multithread_group.add_argument("--ncpu", default=1, type=int, help="Number of CPUs to use when downloading.")
     multithread_group.add_argument("--writeout_frequency", default=10, type=int, help="How many files to download before writing out results and continuing downloads. Too frequent can result in a large slowdown. But for buggy iEEG pulls, frequent saves save progress.")
 
+    debug_group = parser.add_argument_group('Debugging and Hardcoded Options to deal with oddballs.')
+    debug_group.add_argument("--debug", action='store_true', default=False, help="Debug tools. Mainly removes files after generation.")
+    debug_group.add_argument("--ch_type", default=None, type=str, help="Manual set of channel type if not matched by known patterns. (i.e. 'seeg' for intracranial data)")
+    debug_group.add_argument("--randomize", action='store_true', default=False, help="Randomize load order. Useful if doing a big multi part download and most of the work left is by default on a single core.")
+
     misc_group = parser.add_argument_group('Misc options')
     misc_group.add_argument("--include_annotation", action='store_true', default=False, help="If downloading by time, include annotations/events file. Defaults to scalp layer names.")
-    misc_group.add_argument("--target", type=str, help="Target to associate with the data. (i.e. PNES/EPILEPSY/etc.)")
     misc_group.add_argument("--backend", type=str, default='MNE', help="Backend data handler.")
-    misc_group.add_argument("--ch_type", default=None, type=str, help="Manual set of channel type if not matched by known patterns. (i.e. 'seeg' for intracranial data)")
-    misc_group.add_argument("--debug", action='store_true', default=False, help="Debug tools. Mainly removes files after generation.")
-    misc_group.add_argument("--randomize", action='store_true', default=False, help="Randomize load order. Useful if doing a bit multipull and we're left with most of the work on a single core.")
     misc_group.add_argument("--zero_bad_data", action='store_true', default=False, help="Zero out bad data potions.")
     misc_group.add_argument("--copy_edf", action='store_true', default=False, help="Straight copy an edf to bids format. Do not writeout via mne. (Still checks for valid data using mne)")
     misc_group.add_argument("--connection_error_folder", default=None, type=str, help="If provided, save connection errors to this folder. Helps determine access issues after a large download.")
     misc_group.add_argument("--save_raw", action='store_true', default=False, help="Save the data as a raw csv")
     misc_group.add_argument("--event_from_backend", action='store_true', default=False, help="Use backend software to try and infer events.")
-    misc_group.add_argument("--overwrite", action='store_true', default=False, help="Overwrite existing records with the same bids keywords.")
-    misc_group.add_argument("--anonymize", action='store_true', default=False, help="Anonymize the data before writeout.")
     args = parser.parse_args()
 
     # Basic clean-up of path names

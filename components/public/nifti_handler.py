@@ -12,6 +12,7 @@ from components.internal.observer_handler import *
 from components.internal.exception_handler import *
 from components.internal.nlp_token_handler import *
 from components.internal.yasa_handler import *
+from components.internal.PHI_handler import *
 
 class nifti_handler(Subject):
     """
@@ -60,6 +61,7 @@ class nifti_handler(Subject):
 
         # Create the object pointers to the backend and bids library of choice
         self.BH      = BIDS_handler_pybids(args)
+        self.PHI     = phi_handler()
         self.backend = return_backend(self.args.backend)
 
         # Create the object pointers to the backend and bids library of choice.
@@ -84,6 +86,9 @@ class nifti_handler(Subject):
         # Loop over the files individually for edf files. This option has to handle large files.
         for fidx in range(len(self.nifti_files)):
 
+            # Make a data validation flag. Originally we used a phi flag, but this is more general, in case some new use-case comes up to stop data getting loaded into memory.
+            self.valid_data = True
+
             # Create objects to store info
             self.data_list  = []
             self.type_list  = []
@@ -105,8 +110,9 @@ class nifti_handler(Subject):
         self._postprocess_observers = []
 
         # Attach observers
-        self.add_meta_observer(BIDS_observer)
+        self.add_data_observer(phi_observer)
         self.add_data_observer(backend_observer)
+        self.add_meta_observer(BIDS_observer)        
         self.add_postprocessor_observer(nlp_token_observer)
         self.add_postprocessor_observer(yasa_observer)
 

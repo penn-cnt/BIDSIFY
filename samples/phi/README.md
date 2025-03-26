@@ -1,0 +1,1 @@
+This folder contains a list of the most common names from the publically available SSA lists and census data. This is used to find exact or near matches to name in datasets to potentially flag as PHI.
