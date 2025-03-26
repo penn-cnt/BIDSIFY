@@ -139,29 +139,51 @@ class InputExceptions:
 
         return args
     
-    def ieeg_input_exceptions(self,args):
+    def nifti_input_exceptions(self,args):
+        """
+        Custom argument exceptions for imaging data conversion. 
 
-        # Raise some exceptions if we find data we can't work with
-        if 'orig_filename' not in args.columns:
-            raise Exception("Please provide 'orig_filename' in the input csv file.")
-        elif 'orig_filename' in args.columns:
-            if 'start' not in args.columns and not self.args.annotations:
-                raise Exception("A 'start' column is required in the input csv if not using the --annotations flag.")
-            elif 'duration' not in args.columns and not self.args.annotations:
-                raise Exception("A 'duration' column is required in the input csv if not using the --annotations flag.")
-        
-        # Handle situations where the user requested annotations but also provided times
-        if self.args.annotations:
-            if 'start' in args.columns or 'duration' in args.columns:
-                userinput = ''
-                while userinput.lower() not in ['y','n']:
-                    userinput = input("--annotations flag set to True, but start times and durations were provided in the input. Override these times with annotations clips (Yy/Nn)? ")
-                if userinput.lower() == 'n':
-                    print("Ignoring --annotation flag. Using user provided times.")
-                    self.args.annotations = False
-                if userinput.lower() == 'y':
-                    print("Ignoring user provided times in favor of annotation layer times.")
-                    if 'start' in args.columns: args.drop(['start'],axis=1,inplace=True)
-                    if 'duration' in args.columns: args.drop(['duration'],axis=1,inplace=True)
+        Args:
+            args (Namespace): Argument parser.
+
+        Raises:
+            Exception: Generic exception to alert user to EDF specific argument configuration.
+
+        Returns:
+            args (Namespace): Updated Argument parser.
+        """
+
+        # Manage the high level bids keywords
+        if args.input_csv:
+            input_cols = PD.read_csv(args.input_csv, index_col=0, nrows=0).columns.tolist()
+            if 'subject_number' not in input_cols:
+                raise Exception("Please provide a --subject_number to the input csv.")
+            if 'session_number' not in input_cols:
+                raise Exception("Please provide a --session_number to the input csv.")
+            if 'run_number' not in input_cols:
+                raise Exception("Please provide a --run_number to the input csv.")
+            if 'uid' not in input_cols:
+                raise Exception("Please provide a --uid_number to the input csv.")
+        else:
+            if args.subject_number == None:
+                raise Exception("Please provide a --subject_number input to the command line.")
+            if args.uid_number == None:
+                raise Exception("Please provide a --uid_number input to the command line.")
+            if args.session == None:
+                while True:
+                    flag = input(f"Use Session Number {1:03d} (Yy/Nn)? ")
+                    if flag.lower() == 'y':
+                        break
+                    elif flag.lower() == 'n':
+                        raise Exception("Please provide a --session_number input to the command line.")
+                args.session=1
+            if args.run == None:
+                while True:
+                    flag = input(f"Use Run Number {1:03d} (Yy/Nn)? ")
+                    if flag.lower() == 'y':
+                        break
+                    elif flag.lower() == 'n':
+                        raise Exception("Please provide a --run_number input to the command line.")
+                args.run=1
 
         return args

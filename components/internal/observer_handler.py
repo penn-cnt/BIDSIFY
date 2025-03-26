@@ -16,9 +16,13 @@ class Subject:
         if observer not in self._postprocess_observers:
             self._postprocess_observers.append(observer)
 
-    def notify_metadata_observers(self):
-        for observer in self._meta_observers:
-            observer.listen_metadata(self)
+    def notify_metadata_observers(self,backend):
+        if backend.lower() in ['mne']:
+            for observer in self._meta_observers:
+                observer.listen_metadata_eeg(self)
+        elif backend.lower() in ['nibabel']:
+            for observer in self._meta_observers:
+                observer.listen_metadata_img(self)
 
     def notify_data_observers(self):
         for observer in self._data_observers:
@@ -44,7 +48,7 @@ class Observer(ABC):
     @abstractmethod
     def listen_metadata(self):
         raise NotImplementedError("Subclass must implement abstract method")
-    
+
     # Listener for backend data work
     @abstractmethod
     def listen_data(self):

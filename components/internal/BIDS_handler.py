@@ -1,19 +1,32 @@
 import os
+import json
 import time
-import getpass
+import glob
 import pickle
+import shutil
+import getpass
 import numpy as np
 import pandas as PD
+from pathlib import Path as Pathlib
+
+# MNE imports
 from mne import Annotations
 from mne.export import export_raw
 from mne_bids import BIDSPath,write_raw_bids
+
+# Pybids imports
+from bids import BIDSLayout
+from bids.layout.writing import build_path
 
 # Local Imports
 from components.internal.observer_handler import *
 
 class BIDS_observer(Observer):
 
-    def listen_metadata(self):
+    def listen_metadata_eeg(self):
+        """
+        Checks for the needed keywords to ensure bids data is created correctly. Timeseries version.
+        """
 
         def clean_value(key,value):
             
@@ -72,8 +85,70 @@ class BIDS_observer(Observer):
             print(f"Unable to create BIDS keywords for file: {self.keywords['filename']}.")
             print(f"{self.BIDS_keywords}")
         
+    def listen_metadata_img(self):
+        """
+        Checks for the needed keywords to ensure bids data is created correctly. Imaging version.
+        """
 
-class BIDS_handler:
+        # Function to update keys to user inputted values.
+        def acquire_keys(image_keys,series):
+            """
+            Acquire keys from the user for the current protocol name
+            """
+
+            # Make the output object and query keys
+            output = {}
+
+            # Get new inputs
+            print(f"Please provide information for '{series}'")
+            for ikey in image_keys:
+                newval = input(f"    {ikey} (''=None): ")
+                if newval == '':
+                    newval = None
+                output[ikey] = newval
+        
+            return output
+
+        # if we have been given all the keys via cli, or given a user_input csv with all keys, we can skip asking the user for input
+        if not self.skipcheck:
+            # Ask the user if current keys are acceptable. If not, get new entries.,
+            while True:
+
+                # Make a temporary object for the current keys
+                if self.series in self.datalake.keys():
+                    idict = self.datalake[self.series]
+                else:
+                    idict = {}
+
+                # Check for required key values with user
+                print(f"Current Protocol Name: {self.series}.")
+                for ikey in self.imaging_keys:
+                    if self.keywords[ikey] == None:
+                        try:
+                            ival = idict[ikey]
+                        except Exception as e:
+                            ival = None
+                        print(f"Proposed key for {ikey:10}: {ival}")
+                        idict[ikey] = ival
+
+                # Check for good keys and exit as needed
+                continueflag = input(f"Create BIDS data using these keywords (Yy to proceed. Nn to update keys. Ss to skip this file.)? ")
+                if continueflag.lower() == 'y':
+                    self.datalake[self.series] = idict
+                    for ikey in self.datalake[self.series].keys():
+                        self.keywords[ikey] = self.datalake[self.series][ikey]
+                    break
+
+                if continueflag.lower() == 'n':
+                    # Obtain new keys
+                    self.datalake[self.series] = acquire_keys(self.imaging_keys,self.series)
+
+            # Update the pathing
+            self.BH.update_path(self.keywords)
+        else:
+            self.BH.update_path(self.keywords)
+
+class BIDS_handler_MNE:
 
     def __init__(self,args):
         self.args = args
@@ -117,7 +192,6 @@ class BIDS_handler:
 
         def get_annot(iannot):
             return iannot['description']
-
         self.alldesc = '||'.join(list(map(get_annot,raw.annotations)))
 
     def save_targets(self,target):
@@ -135,7 +209,7 @@ class BIDS_handler:
 
         # Check for the merged descriptions. Only important for iEEG.org calls.
         if hasattr(self,'alldesc'):
-            target_dict['description'] ='||'.join(self.alldesc)
+            target_dict['description'] = self.alldesc
 
         # Store the targets
         fp = open(self.target_path,"wb")
@@ -264,3 +338,101 @@ class BIDS_handler:
                 if istr not in previous_ignores:
                     fp.write(f"{istr}\n")
             fp.close()
+
+class BIDS_handler_pybids:
+
+    def __init__(self,args):
+        self.args = args
+
+    def update_path(self,keywords):
+
+        try:
+            # Create the entities object
+            entities  = {}
+
+            # Define the required keys
+            entities['subject']     = keywords['subject']
+            entities['session']     = f"{keywords['session']}"
+            entities['run']         = f"{keywords['run']:02d}"
+            entities['data_type']   = keywords['data_type']
+
+            # Begin building the match string
+            match_str = 'sub-{subject}[/ses-{session}]/{data_type}/sub-{subject}[_ses-{session}]'
+
+            # Optional keys
+            if keywords['task'] != None and keywords['task'].lower() != 'none':
+                entities['task']= keywords['task']
+                match_str += '[_task-{task}]'
+            if keywords['acq'] != None and keywords['acq'].lower() != 'none':
+                entities['acquisition'] = keywords['acq']
+                match_str += '[_acq-{acquisition}]'
+            if keywords['ce'] != None and keywords['ce'].lower() != 'none':
+                entities['ceagent'] = keywords['ce']
+                match_str += '[_ce-{ceagent}]'
+
+            # Add in the run number here
+            match_str += '[_run-{run}]'
+
+            # Remaining optional keys
+            if keywords['modality'] != None:
+                entities['modality'] = keywords['modality']
+                match_str += '[_{modality}]'
+
+            # Define the patterns for pathing    
+            patterns = [match_str]
+
+            # Set up the bids pathing
+            proposed_path  = build_path(entities=entities, path_patterns=patterns)
+            
+            # Make the final pathing objects if successful match was made
+            if proposed_path != None:
+                self.bids_root = keywords['root']
+                self.bids_path = keywords['root']+proposed_path
+                self.file_path = keywords['filename']
+                self.keyflags  = True
+            else:
+                self.keyflags  = False
+        except Exception as e:
+            if self.args.debug:
+                print(f"Bids generation error {e}.")
+            self.keyflags  = False
+    
+    def set_exception(self):
+        self.keyflags = False
+
+    def save_data(self,idata):
+
+        if self.keyflags:
+            # Make sure the folder to save to exists
+            rootpath = '/'.join(self.bids_path.split('/')[:-1])
+            Pathlib(rootpath).mkdir(parents=True, exist_ok=True)
+
+            # Copy the different data files over
+            root_file     = '.'.join(self.file_path.split('.')[:-1])
+            current_files = glob.glob(f"{root_file}*")
+            for jfile in current_files:
+                extension = jfile.split('.')[-1]  
+                shutil.copyfile(jfile, f"{self.bids_path}.{extension}")
+            
+            # Check for the dataset description, which pybids requires
+            output_path = os.path.join(self.bids_root, 'dataset_description.json')
+            if not os.path.exists(output_path):
+                dataset_description = {'Name': 'Your Dataset Name','BIDSVersion': '1.6.0',
+                                        'Description': 'Description of your dataset','License': 'License information'}
+                with open(output_path, 'w') as f:
+                    json.dump(dataset_description, f, indent=4)
+
+            # Create a new BIDSLayout object
+            layout = BIDSLayout(self.bids_root)
+
+            # Save the bids layou
+            with open(output_path, 'r') as f:
+                existing_data = json.load(f)
+            json_output = layout.to_df().to_dict()
+            merged_data = {**existing_data, **json_output}
+        
+            # Save the updated data back to the JSON file
+            with open(output_path, 'w') as f:
+                json.dump(merged_data, f, indent=4)
+        else:
+            print("Invalid BIDS keywords. Could not save to BIDS format.")

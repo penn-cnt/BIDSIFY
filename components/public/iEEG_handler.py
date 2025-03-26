@@ -18,17 +18,39 @@ from components.internal.exception_handler import *
 from components.internal.data_backends import *
 
 class ieeg_handler(Subject):
+    """
+    This class manages the methods that enable downloads from iEEG.org and makes a BIDS dataset locally.
+    The method 'workflow' manages the basic steps required.
+    It is the subject object that maintains a list of observers. 
+    These observers enable a variety of automated functionality.
+
+    As of 03/24/25, the observers fall into the following categories:
+    data observers:
+        - Methods that perform any data preprocessing that need to occur before being saved.
+            - By default, no preprocessing is done. But this can be modified easily by changing the behavior of components.internal.data_backends for the relevant back-end. (MNE_handler by default)
+    meta observers:
+        - Methods that create the required metadata for BIDS generation.
+    postprocessor observers:
+        - Methods that act on the complete BIDS file or BIDS dataset.
+            - At present, the post processor acts on each file after generation. This can be modified by changing when notify_postprocess_observers is called in save_data method.
+            - Currently we include file token creation and yasa sleep staging. But this can be changed in the attach_objects methods. 
+            - Currently only used on EDF datasets. But attaching new methods to the attach_objects method in another handler will enable the same behavior.
+                - Argparse can be given new keywords to modify logic for postprocessor usage.
+            
+    Args:
+        Subject (class): Subject class that allows for linking observers to this class
+    """
 
     def __init__(self,args):
 
-        # Save the input objects
+        # Manage input argument exceptions and then save the data
         self.args = args
 
-        # Create the object pointers
-        self.BH      = BIDS_handler(args)
+        # Create the object pointers to the backend and bids library of choice
+        self.BH      = BIDS_handler_MNE(args)
         self.backend = return_backend(args.backend)
 
-        # Get the data record
+        # Create the object pointers to the backend and bids library of choice
         self.get_data_record()
 
         # Create objects that interact with observers
@@ -223,8 +245,7 @@ class ieeg_handler(Subject):
             input_args = PD.read_csv(self.args.input_csv)
 
             # Check for any exceptions in the inputs
-            IE         = InputExceptions()
-            input_args = IE.ieeg_input_exceptions(input_args)
+            input_args = self.input_exceptions(input_args)
 
             # Grab the relevant indices if using multithreading
             if multiflag:
@@ -378,7 +399,6 @@ class ieeg_handler(Subject):
             # Store the results
             self.annotations[self.ieeg_files[idx]][self.run_list[idx]][event_time_shift] = desc
 
-
     def ieegfile_to_keys(self):
         """
         Use the iEEG.org filename to determine keywords.
@@ -432,6 +452,9 @@ class ieeg_handler(Subject):
         # Loop over the requested data
         for idx in range(len(self.ieeg_files)):
 
+            # Make a data validation flag
+            self.valid_data = True
+
             # Download the data
             if self.args.annotations:
                 self.download_data(self.ieeg_files[idx],0,0,True)
@@ -450,6 +473,9 @@ class ieeg_handler(Subject):
                     
                     # If successful, notify data observer. Else, add a skip
                     if self.success_flag:
+                        # Data object is a way to package data relevant to whatever workflow you want to send to a backend. Named and packaged like this so the listener can send
+                        # an expected object to different backends.
+                        self.data_object = (self.data,self.channels,self.fs,self.annotations)
                         self.notify_data_observers()
                     else:
                         self.data_list.append(None)
@@ -478,6 +504,9 @@ class ieeg_handler(Subject):
                     
                     # If successful, notify data observer. Else, add a skip
                     if self.success_flag:
+                        # Data object is a way to package data relevant to whatever workflow you want to send to a backend. Named and packaged like this so the listener can send
+                        # an expected object to different backends.
+                        self.data_object = (self.data,self.channels,self.fs,self.annotations)
                         self.notify_data_observers()
                     else:
                         self.data_list.append(None)
@@ -518,7 +547,6 @@ class ieeg_handler(Subject):
                     if self.args.debug:
                         print(f"Error {e}")
 
-
     def save_data(self):
         """
         Notify the BIDS code about data updates and save the results when possible.
@@ -538,7 +566,7 @@ class ieeg_handler(Subject):
                 self.keywords = {'filename':self.ieeg_files[idx],'root':self.args.bids_root,'datatype':self.type_list[idx],
                                 'session':self.session_list[idx],'subject':self.subject_list[idx],'run':self.run_list[idx],
                                 'task':'rest','fs':iraw.info["sfreq"],'start':istart,'duration':iduration,'uid':self.uid_list[idx]}
-                self.notify_metadata_observers()
+                self.notify_metadata_observers(self.args.backend)
 
                 # Save the data
                 if self.args.include_annotation or self.args.annotations:
