@@ -26,12 +26,16 @@ On the other hand, we denounce with righteous indignation and dislike men who ar
 Below is an example of how you can instruct your audience on installing and setting up your app. This template doesn't rely on any external dependencies or services.
 
 Get a free API Key at https://example.com
+
 Clone the repo
 > git clone https://github.com/github_username/repo_name.git
+
 Install NPM packages
 > npm install
+
 Enter your API in config.js
 > const API_KEY = 'ENTER YOUR API';
+
 Change git remote url to avoid accidental pushes to base project
 ```
 git remote set-url origin github_username/repo_name
