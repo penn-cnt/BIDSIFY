@@ -156,7 +156,7 @@ These fields are shared across both timeseries and imaging input_csv files.
 
 ### Example Inputs
 
-You can find specific examples of various input files [here](https://github.com/penn-cnt/BIDSIFY/tree/main/samples/inputs).
+You can find specific examples of various input files [here](https://github.com/penn-cnt/BIDSIFY/tree/main/samples/inputs). The provided examples are:
 
 #### EDF Examples
 - `sample_edf_inputs.csv`
