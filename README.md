@@ -3,9 +3,9 @@
 BIDSIFY is a package designed to convert various epilepsy data sources into BIDS-compliant datasets without internet connection or third party data hosting. As the push for standardized datasets grows, harmonizing how we collect and store data has become increasingly important.
 
 ## Table of Contents
-- [Requirements](#Requirements)
-- [Installation](#Installation)
-- [Supported Data Types](#Supported%20Data%20Types)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Supported Data Types](#datatypes)
  
 <!--
 - [Usage](#usage)
@@ -24,11 +24,11 @@ On the other hand, we denounce with righteous indignation and dislike men who ar
 
 On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains.
 
-## Requirements
+## Requirements {#requirements}
 
 BIDSIFY requires Python 3.0+. It was developed for Mac and Linux systems. If using on a windows machine, pathing may become an issue. This is a known bug and is meant to be fixed in a future release.
 
-## Installation
+## Installation {#installation}
 
 BIDSIFY is a purely pythonic means of creating BIDS datasets. It endeavors to do this without the need for an internet connection or data sharing. This allows for more secure BIDS generation that can take place behind clinical firewalls.
 
@@ -90,7 +90,7 @@ Below are two separate methods for installing BIDSIFY to your local workstation.
    python BIDSIFY.py --example_input
    ```
    
-## Supported Data Types
+## Supported Data Types {#datatypes}
 
 Currently, the package supports the following data sources:
 
