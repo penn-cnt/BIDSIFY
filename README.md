@@ -4,9 +4,9 @@ BIDSIFY is a package designed to convert various epilepsy data sources into BIDS
 
 ## Table of Contents
 - [Installation](##Installation)
-[- [Usage](#usage)]#
-[- [Contributing](#contributing)]#
-[- [License](#license)]#
+// - [Usage](#usage)
+// - [Contributing](#contributing)
+// - [License](#license)
 
 ## Installation
 
