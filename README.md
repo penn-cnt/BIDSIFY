@@ -85,7 +85,8 @@ BIDSIFY supports both time series and imaging data conversion to BIDS format. Th
 
 Currently, the package supports the following data sources:
 
-- Converting raw EDF files to BIDS format (using the `--edf` flag)
+### Timeseries
+    - EDF (using the `--edf` flag)
 - Pulling data from iEEG.org (using the `--ieeg` flag)
 - Nifti data (using the --nifti flag)
 - Pennsieve (using the --pennsieve flag)
