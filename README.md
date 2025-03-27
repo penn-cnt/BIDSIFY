@@ -25,7 +25,7 @@ On the other hand, we denounce with righteous indignation and dislike men who ar
 
 BIDSIFY is a purely pythonic means of creating BIDS datasets. It endeavors to do this without the need for an internet connection or data sharing. This allows for more secure BIDS generation that can take place behind clinical firewalls.
 
-Below are two separate methods for installing BIDSIFY to your local workstation. If you are working behind a clinical firewall, and cannot download python packages, we recommend downloading the packages available to requirements.txt and installing them locally.
+Below are two separate methods for installing BIDSIFY to your local workstation. If you are working behind a clinical firewall, and cannot download python packages, we recommend downloading the packages listed within [requirements.txt](./envs/requirements.txt) and installing them locally.
 
 ### Conda
 1. Install Python
