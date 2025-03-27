@@ -97,7 +97,7 @@ Currently, the package supports the following data sources:
 - Converting raw EDF files to BIDS format (using the `--edf` flag)
 - Pulling data from iEEG.org (using the `--ieeg` flag)
 - Nifti data (using the --nifti flag)
-- Pennsieve (using the --pensieve flag)
+- Pennsieve (using the --pennsieve flag)
     - **Note**: This option is not yet fully implemented as the Pennsieve team works on a Python API.
 
 ### Adding new data sources
