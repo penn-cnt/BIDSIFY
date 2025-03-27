@@ -169,6 +169,10 @@ You can find specific examples of various input files [here](https://github.com/
     - This sample is used for downloading specific time segments from iEEG.org.
 - `sample_edf_inputs.csv`
     - This sample is for converting individual edf files on your computer into a BIDS compliant format.
+- `sample_edf_inputs_w_targets.csv`
+    - This sample is for converting individual edf files on your computer into a BIDS compliant format with target data (i.e. epilepsy diagnosis, demographic info, etc,) associated.
+- `sample_nifti_inputs.csv`
+    - This sample is for converting individual NIFTI files on your computer into a BIDS compliant format.
 
 <!---
 ### Exploring my data after conversion
