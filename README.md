@@ -86,11 +86,17 @@ BIDSIFY supports both time series and imaging data conversion to BIDS format. Th
 Currently, the package supports the following data sources:
 
 ### Timeseries
+We currently support the following timeseries data sources
     - EDF (using the `--edf` flag)
-- Pulling data from iEEG.org (using the `--ieeg` flag)
-- Nifti data (using the --nifti flag)
-- Pennsieve (using the --pennsieve flag)
-    - **Note**: This option is not yet fully implemented as the Pennsieve team works on a Python API.
+    - iEEG.org (using the `--ieeg` flag)
+    - Pennsieve (using the --pennsieve flag)
+        - **Note**: This option is not yet fully implemented as the Pennsieve team works on a Python API.
+
+### Imaging
+We currently support the following imaging data sources
+    - Nifti data (using the --nifti flag)
+
+**Note**. Future releases will change the use of specific input flags (i.e. --edf,--nifti,etc) to --timeseries, --imaging or similar logic. At present the back-end logic can read in different data types without breaking the workflow, but at the time of implementation the only required use cases have centered on these specific data formats.
 
 ### Adding new data sources
 The recommended method for adding a new data source is to add a new handler for the data source in the components/public folder. This public facing handler is meant to manage the general flow of data processing. Code responsible for actually reading in timeseries or imaging data, as well as running any postprocessing, is available within the components/internal folder, and can be called by attaching their associated observer method. For more information, we recommend visiting here.
