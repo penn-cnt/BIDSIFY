@@ -9,6 +9,7 @@ dependencies:
   - numpy
   - pandas
   - prettytable
+  - pyyaml
   - scikit-learn
   - scipy
   - tqdm
