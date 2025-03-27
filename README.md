@@ -25,6 +25,8 @@ On the other hand, we denounce with righteous indignation and dislike men who ar
 
 BIDSIFY is a purely pythonic means of creating BIDS datasets. It endeavors to do this without the need for an internet connection or data sharing. This allows for more secure BIDS generation that can take place behind clinical firewalls.
 
+Below are two separate methods for installing BIDSIFY to your local workstation. If you are working behind a clinical firewall, and cannot download python packages, we recommend downloading the packages available to requirements.txt and installing them locally.
+
 ### Conda
 1. Install Python
 2. Clone the repo
@@ -49,6 +51,35 @@ BIDSIFY is a purely pythonic means of creating BIDS datasets. It endeavors to do
    ```
    python BIDSIFY.py --example_input
    ```
+
+### PIP
+1. Install Python
+2. Clone the repo
+   ```
+    git clone https://github.com/penn-cnt/BIDSIFY
+   ```
+4. Create the python environment
+    ```
+    pip -m venv <path-to-environment-folder>
+   ```
+    Your environment will be saved to a folder on the filesystem, and you will need to provide a path to a folder you want to use for storing these python packages.
+5. Activate environment
+    ```
+    source <path-to-environment-folder>/bin/activate
+    ```
+    If you plan to use this package often, you may want to consider setting an alias to quickly enter this environment. For more on setting up aliases, please refer to here.
+6. Attach default postprocessors (Optional)
+    ```
+    conda develop <path-to-cnt-codehub>
+    ```
+7. Test installation
+   ```
+   python BIDSIFY.py --example_input
+   ```
+
+
+
+
 <!---
 ## Supported Data Sources
 
