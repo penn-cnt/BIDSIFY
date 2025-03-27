@@ -23,24 +23,13 @@ On the other hand, we denounce with righteous indignation and dislike men who ar
 
 ## Installation
 
-Below is an example of how you can instruct your audience on installing and setting up your app. This template doesn't rely on any external dependencies or services.
+BIDSIFY is a purely pythonic means of creating BIDS datasets. It endeavors to do this without the need for an internet connection or data sharing. This allows for more secure BIDS generation that can take behind clinical firewalls.
 
-Get a free API Key at https://example.com
-
-Clone the repo
-> git clone https://github.com/github_username/repo_name.git
-
-Install NPM packages
-> npm install
-
-Enter your API in config.js
-> const API_KEY = 'ENTER YOUR API';
-
-Change git remote url to avoid accidental pushes to base project
-```
-git remote set-url origin github_username/repo_name
-git remote -v # confirm the changes
-```
+1. Install Python
+2. Create an environment
+3. Clone the repo
+> git clone [https://github.com/github_username/repo_name.git](https://github.com/penn-cnt/BIDSIFY)
+5. Install packages
 
 <!---
 ## Supported Data Sources
