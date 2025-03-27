@@ -6,7 +6,7 @@ BIDSIFY is a package designed to convert various epilepsy data sources into BIDS
 - [Requirements](#Requirements)
 - [Installation](#Installation)
 - [Supported Data Types](#Supported-Data-Types)
-- [Examples](#examples)
+- [Converting Multiple files](#Converting-Multiple-files)
 
 <!--
 - [Contributing](#contributing)
@@ -110,11 +110,9 @@ There are a number of different options inherent to this package and means to st
 
 ## Converting Multiple files
 
-You can download/convert multiple files at once using the `--input_csv` flag. 
+You can download/convert multiple files at once using the `--input_csv` flag. A breakdown of the allowed headers to the input csv file are as follows:
 
-### Inputs to input_csv
-
-#### Generic Fields
+### Generic Fields
 These fields are shared across both timeseries and imaging input_csv files.
 
 - `orig_filename`
@@ -156,23 +154,23 @@ These fields are shared across both timeseries and imaging input_csv files.
 - `imaging_ce`
     - Contrast enrichment type of the image (i.e. ce-gad/etc.)
 
-## Example Inputs
+### Example Inputs
 
 You can find specific examples of various input files [here](https://github.com/penn-cnt/BIDSIFY/tree/main/samples/inputs).
 
-### EDF Examples
+#### EDF Examples
 - `sample_edf_inputs.csv`
     - This sample is for converting individual edf files on your computer into a BIDS compliant format.
 - `sample_edf_inputs_w_targets.csv`
     - This sample is for converting individual edf files on your computer into a BIDS compliant format with target data (i.e. epilepsy diagnosis, demographic info, etc,) associated.
 
-### iEEG.org Examples
+#### iEEG.org Examples
 - `download_by_annotations.csv`
     - This sample is used for downloading all of the data within a iEEG.org file according to the annotation layer times.
 - `download_by_times.csv`
     - This sample is used for downloading specific time segments from iEEG.org.
 
-### Imaging Exmples
+#### Imaging Exmples
 - `sample_nifti_inputs.csv`
     - This sample is for converting individual NIFTI files on your computer into a BIDS compliant format.
 
