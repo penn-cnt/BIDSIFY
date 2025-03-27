@@ -31,7 +31,15 @@ BIDSIFY is a purely pythonic means of creating BIDS datasets. It endeavors to do
    ```
     git clone https://github.com/penn-cnt/BIDSIFY
    ```
-5. Install packages
+4. Install packages
+   Conda:
+    ```
+    git clone https://github.com/penn-cnt/BIDSIFY
+   ```
+5. Test installation
+   ```
+   python BIDSIFY.py --example_input
+   ```
 
 <!---
 ## Supported Data Sources
