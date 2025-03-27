@@ -25,22 +25,27 @@ On the other hand, we denounce with righteous indignation and dislike men who ar
 
 BIDSIFY is a purely pythonic means of creating BIDS datasets. It endeavors to do this without the need for an internet connection or data sharing. This allows for more secure BIDS generation that can take behind clinical firewalls.
 
+### Conda
 1. Install Python
-2. Create an environment
-3. Clone the repo
+2. Clone the repo
    ```
     git clone https://github.com/penn-cnt/BIDSIFY
    ```
-4. Install packages
-   Conda:
+4. Create the conda environment
     ```
-    git clone https://github.com/penn-cnt/BIDSIFY
+    conda env create --file BIDSIFY.yml
    ```
-5. Test installation
+    By default, the provided conda yaml will set the environment name to bidify. You can change this in the bidsify.yml file, or provide an additional flag to this command along the lines of `-n <new-environment-name>`
+5. Activate conda environment (Optional)
+    ```
+    conda activate bidsify
+    ```
+    If you set a new environment name, make sure to change bidsify to the correct environment name.
+6.  Attach default postprocessors (Optional)
+7. Test installation
    ```
    python BIDSIFY.py --example_input
    ```
-
 <!---
 ## Supported Data Sources
 
