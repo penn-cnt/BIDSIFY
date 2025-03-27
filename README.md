@@ -130,8 +130,6 @@ These fields are shared across both timeseries and imaging input_csv files.
     - Optional. Session number to assign to the data. Defaults to 1. Can be entered as a string (i.e. `implant01`)
 - `run_number`
     - Optional. Run number to assign to the data. Defaults to 1. 
-- `task`
-    - Optional. Task to assign to the data. (i.e. `rest`)
 - `target`
     - Optional. Additional information to keep associated with the dataset in a `*_targets.pickle` file. This could be epilepsy diagnosis, sleep stage, etc.
 
@@ -143,8 +141,23 @@ These fields are shared across both timeseries and imaging input_csv files.
 - `duration`
     - Optional. The duration of the clip.
     - **Note** Required if downloading from iEEG.org without using the annotation clip times.
-
+- `task`
+    - Optional. Task to assign to the data. (i.e. `rest`)
+      
 #### Imaging Fields
+
+- `imaging_data_type`
+    - Data Type of the image (i.e. anat/ct/etc.) 
+- `imaging_scan_type`
+    - Scan Type of the image (i.e. MRI/fMRI/etc.) 
+- `imaging_modality`
+    - Modality of the image (i.e. T1/flair/etc.)  
+- `imaging_task`
+    - Task of the image (rest/etc.)
+- `imaging_acq`
+    - Acquisition Type of the image (i.e. axial/sagittal/etc.) 
+- `imaging_ce`
+    - Contrast enrichment type of the image (i.e. ce-gad/etc.)
 
 #### Example Inputs
 
