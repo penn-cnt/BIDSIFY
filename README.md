@@ -98,9 +98,10 @@ We currently support the following imaging data sources
 
 - Nifti data (using the `--nifti` flag)
 
-**Note**. Future releases will change the use of specific input flags (i.e. --edf,--nifti,etc) to --timeseries, --imaging or similar logic. At present the back-end logic can read in different data types without breaking the workflow, but at the time of implementation the only required use cases have centered on these specific data formats.
+### Future Data Sources
+Future releases will change the use of specific input flags (i.e. --edf,--nifti,etc) to --timeseries, --imaging or similar logic. At present the back-end logic can read in different data types without breaking the workflow, but at the time of implementation the only required use cases have centered on these specific data formats.
 
-### Adding new data sources
+#### Adding new data sources
 The recommended method for adding a new data source is to add a new handler for the data source in the components/public folder. This public facing handler is meant to manage the general flow of data processing. Code responsible for actually reading in timeseries or imaging data, as well as running any postprocessing, is available within the components/internal folder, and can be called by attaching their associated observer method. For more information, we recommend visiting here.
 
 <!---
