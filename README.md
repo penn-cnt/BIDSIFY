@@ -108,16 +108,13 @@ The recommended method for adding a new data source is to add a new handler for 
 
 There are a number of different options inherent to this package and means to streamline the BIDS creation using sidecar files (typically .csv tabular data). We explain a few of these concepts, and present some examples below.
 
-## Examples
+## Converting Multiple files
 
-At present, EEG BIDS is designed to download and/or convert data to the preferred data format for epilepsy data, BIDS. Within the CNT, iEEG.org is a common data source, but the python API, data standards, and specifics of BIDS present a number of hurdles for conversion. This script aims to resolve these issues and streamline the process. We explain a few key concepts for usage here.
-
-### Creating a list of files to pull
 You can download/convert multiple files at once using the `--input_csv` flag. 
 
-#### Inputs to input_csv
+### Inputs to input_csv
 
-##### Generic Fields
+#### Generic Fields
 These fields are shared across both timeseries and imaging input_csv files.
 
 - `orig_filename`
@@ -133,7 +130,7 @@ These fields are shared across both timeseries and imaging input_csv files.
 - `target`
     - Optional. Additional information to keep associated with the dataset in a `*_targets.pickle` file. This could be epilepsy diagnosis, sleep stage, etc.
 
-#### Timeseries Fields
+### Timeseries Fields
 
 - `start`
     - Optional. The start time of the dataset.
@@ -144,7 +141,7 @@ These fields are shared across both timeseries and imaging input_csv files.
 - `task`
     - Optional. Task to assign to the data. (i.e. `rest`)
       
-#### Imaging Fields
+### Imaging Fields
 
 - `imaging_data_type`
     - Data Type of the image (i.e. anat/ct/etc.) 
@@ -159,23 +156,23 @@ These fields are shared across both timeseries and imaging input_csv files.
 - `imaging_ce`
     - Contrast enrichment type of the image (i.e. ce-gad/etc.)
 
-### Example Inputs
+## Example Inputs
 
 You can find specific examples of various input files [here](https://github.com/penn-cnt/BIDSIFY/tree/main/samples/inputs).
 
-#### EDF Examples
+### EDF Examples
 - `sample_edf_inputs.csv`
     - This sample is for converting individual edf files on your computer into a BIDS compliant format.
 - `sample_edf_inputs_w_targets.csv`
     - This sample is for converting individual edf files on your computer into a BIDS compliant format with target data (i.e. epilepsy diagnosis, demographic info, etc,) associated.
 
-#### iEEG.org Examples
+### iEEG.org Examples
 - `download_by_annotations.csv`
     - This sample is used for downloading all of the data within a iEEG.org file according to the annotation layer times.
 - `download_by_times.csv`
     - This sample is used for downloading specific time segments from iEEG.org.
 
-#### Imaging Exmples
+### Imaging Exmples
 - `sample_nifti_inputs.csv`
     - This sample is for converting individual NIFTI files on your computer into a BIDS compliant format.
 
