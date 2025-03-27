@@ -1,0 +1,22 @@
+name: bidsify
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - fooof
+  - neurodsp
+  - nltk
+  - numpy
+  - pandas
+  - prettytable
+  - scikit-learn
+  - scipy
+  - tqdm
+  - pip:
+      - ./wheels/ieeg-1.6-py3-none-any.whl
+      - edflib-python
+      - mne
+      - mne-bids
+      - mne-icalabel
+      - nibabel
+      - yasa

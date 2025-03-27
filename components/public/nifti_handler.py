@@ -1,8 +1,5 @@
 import os 
-import time
-import getpass
 from tqdm import tqdm
-#from 
 
 # Local import
 
