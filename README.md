@@ -74,8 +74,10 @@ Below are two separate methods for installing BIDSIFY to your local workstation.
     ```
 7. Attach default postprocessors (Optional)
     ```
-    conda develop <path-to-cnt-codehub>
+    export PYTHONPATH="${PYTHONPATH}:<path-to-cnt-codehub>"
     ```
+   If you're working on a windows machine, or can't otherwise modify your path, you can also add a .pth file contain the path to the codehub to your environment folder's site packages.
+    
 8. Test installation
    ```
    python BIDSIFY.py --example_input
