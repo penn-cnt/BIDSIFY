@@ -6,7 +6,7 @@ BIDSIFY is a package designed to convert various epilepsy data sources into BIDS
 - [Requirements](#Requirements)
 - [Installation](#Installation)
 - [Supported Data Types](#Supported-Data-Types)
-- [Usage](#usage)
+- [Examples](#examples)
 
 <!--
 - [Contributing](#contributing)
@@ -108,8 +108,7 @@ The recommended method for adding a new data source is to add a new handler for 
 
 There are a number of different options inherent to this package and means to streamline the BIDS creation using sidecar files (typically .csv tabular data). We explain a few of these concepts, and present some examples below.
 
-
-## Usage
+## Example
 
 At present, EEG BIDS is designed to download and/or convert data to the preferred data format for epilepsy data, BIDS. Within the CNT, iEEG.org is a common data source, but the python API, data standards, and specifics of BIDS present a number of hurdles for conversion. This script aims to resolve these issues and streamline the process. We explain a few key concepts for usage here.
 
