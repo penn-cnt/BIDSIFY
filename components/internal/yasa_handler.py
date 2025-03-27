@@ -1,8 +1,13 @@
 from mne.io import read_raw_edf
 
 # Epipy imports
-from components.workflows.public.channel_clean import *
-from components.features.public.features import *
+global succesful_imports
+try:
+    from components.workflows.public.channel_clean import *
+    from components.features.public.features import *
+    succesful_imports = True
+except:
+    succesful_imports = False
 
 # Local Imports
 from components.internal.observer_handler import *
@@ -24,20 +29,21 @@ class yasa_handler:
 
     def workflow(self):
 
-        try:
-            # Read in the data
-            self.read_data()
+        if succesful_imports:
+            try:
+                # Read in the data
+                self.read_data()
 
-            # Clean the data as needed
-            self.clean_data()
+                # Clean the data as needed
+                self.clean_data()
 
-            # Run YASA
-            self.YASA_wrapper()
+                # Run YASA
+                self.YASA_wrapper()
 
-            # Save the results
-            self.YASA_DF.to_csv(self.outfile,index=False)
-        except:
-            pass
+                # Save the results
+                self.YASA_DF.to_csv(self.outfile,index=False)
+            except:
+                pass
 
     def read_data(self):
 

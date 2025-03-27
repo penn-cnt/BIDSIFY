@@ -9,6 +9,7 @@ dependencies:
   - numpy
   - pandas
   - prettytable
+  - pybids
   - pyyaml
   - scikit-learn
   - scipy
