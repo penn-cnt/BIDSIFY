@@ -6,9 +6,9 @@ BIDSIFY is a package designed to convert various epilepsy data sources into BIDS
 - [Requirements](#Requirements)
 - [Installation](#Installation)
 - [Supported Data Types](#Supported-Data-Types)
- 
-<!--
 - [Usage](#usage)
+
+<!--
 - [Contributing](#contributing)
 - [License](#license)
 -->
@@ -103,6 +103,10 @@ Future releases will change the use of specific input flags (i.e. --edf,--nifti,
 
 #### Adding new data sources
 The recommended method for adding a new data source is to add a new handler for the data source in the components/public folder. This public facing handler is meant to manage the general flow of data processing. Code responsible for actually reading in timeseries or imaging data, as well as running any postprocessing, is available within the components/internal folder, and can be called by attaching their associated observer method. For more information, we recommend visiting here.
+
+## Usage
+
+There are a number of different options inherent to this package and means to streamline the BIDS creation using sidecar files (typically .csv tabular data). We explain a few of these concepts, and present some examples below.
 
 <!---
 ## Usage
