@@ -108,7 +108,7 @@ The recommended method for adding a new data source is to add a new handler for 
 
 There are a number of different options inherent to this package and means to streamline the BIDS creation using sidecar files (typically .csv tabular data). We explain a few of these concepts, and present some examples below.
 
-## Example
+## Examples
 
 At present, EEG BIDS is designed to download and/or convert data to the preferred data format for epilepsy data, BIDS. Within the CNT, iEEG.org is a common data source, but the python API, data standards, and specifics of BIDS present a number of hurdles for conversion. This script aims to resolve these issues and streamline the process. We explain a few key concepts for usage here.
 
@@ -163,14 +163,19 @@ These fields are shared across both timeseries and imaging input_csv files.
 
 You can find specific examples of various input files [here](https://github.com/penn-cnt/BIDSIFY/tree/main/samples/inputs).
 
-- `download_by_annotations.csv`
-    - This sample is used for downloading all of the data within a iEEG.org file according to the annotation layer times.
-- `download_by_times.csv`
-    - This sample is used for downloading specific time segments from iEEG.org.
+#### EDF Examples
 - `sample_edf_inputs.csv`
     - This sample is for converting individual edf files on your computer into a BIDS compliant format.
 - `sample_edf_inputs_w_targets.csv`
     - This sample is for converting individual edf files on your computer into a BIDS compliant format with target data (i.e. epilepsy diagnosis, demographic info, etc,) associated.
+
+#### iEEG.org Examples
+- `download_by_annotations.csv`
+    - This sample is used for downloading all of the data within a iEEG.org file according to the annotation layer times.
+- `download_by_times.csv`
+    - This sample is used for downloading specific time segments from iEEG.org.
+
+#### Imaging Exmples
 - `sample_nifti_inputs.csv`
     - This sample is for converting individual NIFTI files on your computer into a BIDS compliant format.
 
