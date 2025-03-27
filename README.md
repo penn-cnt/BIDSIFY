@@ -2,6 +2,17 @@
 
 BIDSIFY is a package designed to convert various epilepsy data sources into BIDS-compliant datasets without internet connection or third party data hosting. As the push for standardized datasets grows, harmonizing how we collect and store data has become increasingly important.
 
+## Table of Contents
+- [Installation](##Installation)
+[- [Usage](#usage)]#
+[- [Contributing](#contributing)]#
+[- [License](#license)]#
+
+## Installation
+
+EEG_BIDS uses a number of specific packages, and it can be time consuming to build an environment just for the purposes of this script. We recommend starting with the directions for installing the cnt-codehub python environment found [here](https://github.com/penn-cnt/CNT-codehub/blob/main/README.md). You can then modify the cnt_codehub.yaml file as needed to match your needs.
+
+<!---
 ## Supported Data Sources
 
 Currently, the package supports the following data sources:
@@ -147,9 +158,7 @@ This folder contains the backend code that makes up EEG BIDS, providing function
 #### `samples`
 Includes numerous sample CLI calls and input files to help you get started using the package.
 
-## Installation
 
-EEG_BIDS uses a number of specific packages, and it can be time consuming to build an environment just for the purposes of this script. We recommend starting with the directions for installing the cnt-codehub python environment found [here](https://github.com/penn-cnt/CNT-codehub/blob/main/README.md). You can then modify the cnt_codehub.yaml file as needed to match your needs.
 
 ## Contributing
 (In Progress)
@@ -157,3 +166,4 @@ EEG_BIDS uses a number of specific packages, and it can be time consuming to bui
 If adding support for new data inputs, you can make a new object in components.public that reads in your raw data and generates the proper bids keywords. 
 
 Once you have read in your data and generated keywords, you just need to alert the observers to generate the actual backend data. You can do this by
+-->
