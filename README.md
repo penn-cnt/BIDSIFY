@@ -23,7 +23,7 @@ On the other hand, we denounce with righteous indignation and dislike men who ar
 
 ## Installation
 
-BIDSIFY is a purely pythonic means of creating BIDS datasets. It endeavors to do this without the need for an internet connection or data sharing. This allows for more secure BIDS generation that can take behind clinical firewalls.
+BIDSIFY is a purely pythonic means of creating BIDS datasets. It endeavors to do this without the need for an internet connection or data sharing. This allows for more secure BIDS generation that can take place behind clinical firewalls.
 
 ### Conda
 1. Install Python
