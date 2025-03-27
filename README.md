@@ -108,6 +108,14 @@ The recommended method for adding a new data source is to add a new handler for 
 
 There are a number of different options inherent to this package and means to streamline the BIDS creation using sidecar files (typically .csv tabular data). We explain a few of these concepts, and present some examples below.
 
+For a comprehensive list of commands, you should run
+
+> python BIDSIFY.py --help
+
+for a detailed help document. For printed examples in terminal, you can also run:
+
+> python BIDSIFY.py --print_example
+
 ## Converting Multiple files
 
 You can download/convert multiple files at once using the `--input_csv` flag. A breakdown of the allowed headers to the input csv file are as follows:
@@ -181,34 +189,34 @@ We provide a few sample commands here. Note, all examples utilize a username and
 ### EDF Conversions
 
 #### Single edf
-> python BIDSIFY.py --edf --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/  --dataset /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/epipy_testing/BIDS/sub-HUP00001_ses-emu1648day01file1_task-rest_run-0002_eeg.edf --subject HUP001 --uid_number 1 --session 1 --run 1 --overwrite --target /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/epipy_testing/BIDS/sub-HUP00001_ses-emu1648day01file1_task-rest_run-0002_eeg_targets.pickle
+> python BIDSIFY.py --edf --bids_root <path-to-bids-root>  --dataset <path-to-edf> --subject HUP001 --uid_number 1 --session 1 --run 1 --overwrite --target <path-to-target-file>
 
 #### Multi edf with anonymization/phi checks
-> python BIDSIFY.py --edf  --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/ --input_csv samples/inputs/sample_edf_inputs_w_target.csv --anonymize
+> python BIDSIFY.py --edf  --bids_root <path-to-bids-root> --input_csv samples/inputs/sample_edf_inputs_w_target.csv --anonymize
 
 ### Nifti Datasets
 
 #### Single Nifti
-> python BIDSIFY.py --nifti --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/ --dataset /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/RAW_IMAGING_DATA/data/sub-RID0280_AX_FLAIR_4_20161010125629.nii  --subject_number HUP001 --uid_number 0 --session 001 --run 01 --imaging_data_type anat --imaging_scan_type MR --imaging_modality flair --imaging_task None --imaging_acq ax --imaging_ce None
+> python BIDSIFY.py --nifti --bids_root <path-to-bids-root> --dataset /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/RAW_IMAGING_DATA/data/sub-RID0280_AX_FLAIR_4_20161010125629.nii  --subject_number HUP001 --uid_number 0 --session 001 --run 01 --imaging_data_type anat --imaging_scan_type MR --imaging_modality flair --imaging_task None --imaging_acq ax --imaging_ce None
 
 #### Multi Nifti
-> python BIDSIFY.py --nifti --datalake datalakes/R61_datalake.pickle --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/ --input_csv samples/inputs/sample_nifti_inputs.csv
+> python BIDSIFY.py --nifti --datalake datalakes/R61_datalake.pickle --bids_root <path-to-bids-root> --input_csv samples/inputs/sample_nifti_inputs.csv
 
 
 ### iEEG.org Downloads
 
 #### Download from iEEG.org using an input table with times
-> python BIDSIFY.py --ieeg --username BJPrager --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/  --input_csv samples/inputs/download_by_times.csv
+> python BIDSIFY.py --ieeg --username BJPrager --bids_root <path-to-bids-root>  --input_csv samples/inputs/download_by_times.csv
 
 #### Download from iEEG.org using an input table with annotation layers
-> python BIDSIFY.py --ieeg --username BJPrager --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/  --annotations --input_csv samples/inputs/download_by_annotations.csv
+> python BIDSIFY.py --ieeg --username BJPrager --bids_root <path-to-bids-root>  --annotations --input_csv samples/inputs/download_by_annotations.csv
 
 
 
 <!---
 ```
 #### Find targets
-`python utils/find_targets.py --tokendict /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/filetokens.dict --outfile sample_files`
+`python utils/find_targets.py --tokendict <path-to-bids-root>filetokens.dict --outfile sample_files`
 ```
 
 ## Assigning a `--uid` 
