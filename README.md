@@ -3,7 +3,7 @@
 BIDSIFY is a package designed to convert various epilepsy data sources into BIDS-compliant datasets without internet connection or third party data hosting. As the push for standardized datasets grows, harmonizing how we collect and store data has become increasingly important.
 
 ## Table of Contents
-- [Installation](##Installation)
+- [Installation](#Installation)
 <!--
 - [Usage](#usage)
 - [Contributing](#contributing)
