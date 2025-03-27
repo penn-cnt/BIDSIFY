@@ -41,7 +41,10 @@ BIDSIFY is a purely pythonic means of creating BIDS datasets. It endeavors to do
     conda activate bidsify
     ```
     If you set a new environment name, make sure to change bidsify to the correct environment name.
-6.  Attach default postprocessors (Optional)
+6. Attach default postprocessors (Optional)
+    ```
+    conda develop <path-to-cnt-codehub>
+    ```
 7. Test installation
    ```
    python BIDSIFY.py --example_input
