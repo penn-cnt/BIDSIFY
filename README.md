@@ -87,6 +87,7 @@ Currently, the package supports the following data sources:
 
 ### Timeseries
 We currently support the following timeseries data sources
+
     - EDF (using the `--edf` flag)
     - iEEG.org (using the `--ieeg` flag)
     - Pennsieve (using the --pennsieve flag)
@@ -94,6 +95,7 @@ We currently support the following timeseries data sources
 
 ### Imaging
 We currently support the following imaging data sources
+
     - Nifti data (using the --nifti flag)
 
 **Note**. Future releases will change the use of specific input flags (i.e. --edf,--nifti,etc) to --timeseries, --imaging or similar logic. At present the back-end logic can read in different data types without breaking the workflow, but at the time of implementation the only required use cases have centered on these specific data formats.
