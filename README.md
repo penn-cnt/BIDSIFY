@@ -67,7 +67,7 @@ Below are two separate methods for installing BIDSIFY to your local workstation.
     ```
     source <path-to-environment-folder>/bin/activate
     ```
-    If you plan to use this package often, you may want to consider setting an alias to quickly enter this environment. For more on setting up aliases, please refer to (https://www.geeksforgeeks.org/alias-command-in-linux-with-examples/)[here].
+    If you plan to use this package often, you may want to consider setting an alias to quickly enter this environment. For more on setting up aliases, please refer [here](https://www.geeksforgeeks.org/alias-command-in-linux-with-examples/).
 6. Attach default postprocessors (Optional)
     ```
     conda develop <path-to-cnt-codehub>
