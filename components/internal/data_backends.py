@@ -40,18 +40,20 @@ class MNE_handler:
         Read in data using the MNE backend.
 
         Args:
-            inpath (str): Filepath to EDF data
+            inpath (str): Filepath to input data
         """
-        try:
-            raw = read_raw_edf(inpath,verbose=False)
-            data         = raw.get_data().T
-            channels     = raw.ch_names
-            fs           = raw.info.get('sfreq')
-            annotations  = raw.annotations
-            success_flag = True
-            return data, channels, fs, annotations, success_flag, None
-        except Exception as e:
-            return None,None,None,None,False,e
+        
+        if inpath.endswith('.edf'):
+            try:
+                raw = read_raw_edf(inpath,verbose=False)
+                data         = raw.get_data().T
+                channels     = raw.ch_names
+                fs           = raw.info.get('sfreq')
+                annotations  = raw.annotations
+                success_flag = True
+                return data, channels, fs, annotations, success_flag, None
+            except Exception as e:
+                return None,None,None,None,False,e
 
     def workflow(self,args,data_object):
 
@@ -195,11 +197,13 @@ class nibabel_handler:
         pass
 
     def read_data(self,inpath):
-        try:
-            data = nib.load(inpath)
-            return data,True,None
-        except Exception as e:
-            return None,False,e
+
+        if inpath.endswith('.nii'):
+            try:
+                data = nib.load(inpath)
+                return data,True,None
+            except Exception as e:
+                return None,False,e
         
     def workflow(self,args,data_object):
 
