@@ -159,9 +159,9 @@ These fields are shared across both timeseries and imaging input_csv files.
 - `imaging_ce`
     - Contrast enrichment type of the image (i.e. ce-gad/etc.)
 
-#### Example Inputs
+### Example Inputs
 
-You can find examples of various input files [here](https://github.com/penn-cnt/CNT-codehub/tree/main/scripts/codehub/utils/acquisition/BIDS/samples/inputs/).
+You can find specific examples of various input files [here](https://github.com/penn-cnt/BIDSIFY/tree/main/samples/inputs).
 
 - `download_by_annotations.csv`
     - This sample is used for downloading all of the data within a iEEG.org file according to the annotation layer times.
