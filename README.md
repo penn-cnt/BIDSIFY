@@ -88,10 +88,10 @@ Currently, the package supports the following data sources:
 ### Timeseries
 We currently support the following timeseries data sources
 
-    - EDF (using the `--edf` flag)
-    - iEEG.org (using the `--ieeg` flag)
-    - Pennsieve (using the --pennsieve flag)
-        - **Note**: This option is not yet fully implemented as the Pennsieve team works on a Python API.
+- EDF (using the `--edf` flag)
+- iEEG.org (using the `--ieeg` flag)
+- Pennsieve (using the --pennsieve flag)
+    - **Note**: This option is not yet fully implemented as the Pennsieve team works on a Python API.
 
 ### Imaging
 We currently support the following imaging data sources
