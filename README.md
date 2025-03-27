@@ -108,22 +108,10 @@ The recommended method for adding a new data source is to add a new handler for 
 
 There are a number of different options inherent to this package and means to streamline the BIDS creation using sidecar files (typically .csv tabular data). We explain a few of these concepts, and present some examples below.
 
-<!---
+
 ## Usage
 
 At present, EEG BIDS is designed to download and/or convert data to the preferred data format for epilepsy data, BIDS. Within the CNT, iEEG.org is a common data source, but the python API, data standards, and specifics of BIDS present a number of hurdles for conversion. This script aims to resolve these issues and streamline the process. We explain a few key concepts for usage here.
-
-### Selecting a data source
-You can select a data source from the `data source options`, which can be found by using the `--help` option.
-
-At present we support:
-1. `--ieeg`: This options tells the script to pull from iEEG.org. This option requires you to provide at minimum:
-    - iEEG.org Username
-    - Dataset id
-    - Start time
-    - Duration
-2. `--edf`: This option will take a local .edf file and create/place it into a BIDS structure for you. This option requires you to provide at minimum:
-    - Dataset path
 
 ### Creating a list of files to pull
 You can download/convert multiple files at once using the `--input_csv` flag. 
@@ -162,6 +150,7 @@ You can find examples of various input files [here](https://github.com/penn-cnt/
 - `sample_edf_inputs.csv`
     - This sample is for converting individual edf files on your computer into a BIDS compliant format.
 
+<!---
 ### Exploring my data after conversion
 In order to find specific files, and to avoid duplicate downloads, the code creates a manifest document that stores the original filename and resulting BIDS keywords for every file. By default this file is called `subject_map.csv` and is located in the bids root directory.
 
