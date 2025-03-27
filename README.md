@@ -174,6 +174,37 @@ You can find specific examples of various input files [here](https://github.com/
 - `sample_nifti_inputs.csv`
     - This sample is for converting individual NIFTI files on your computer into a BIDS compliant format.
 
+## Sample commands
+
+We provide a few sample commands here. Note, all examples utilize a username and filepaths that you will need to update to reflect your own system and credentials.
+
+### EDF Conversions
+
+#### Single edf
+`python BIDSIFY.py --edf --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/  --dataset /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/epipy_testing/BIDS/sub-HUP00001_ses-emu1648day01file1_task-rest_run-0002_eeg.edf --subject HUP001 --uid_number 1 --session 1 --run 1 --overwrite --target /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/epipy_testing/BIDS/sub-HUP00001_ses-emu1648day01file1_task-rest_run-0002_eeg_targets.pickle`
+
+#### Multi edf with anonymization/phi checks
+`python BIDSIFY.py --edf  --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/ --input_csv samples/inputs/sample_edf_inputs_w_target.csv --anonymize`
+
+### Nifti Datasets
+
+#### Single Nifti
+`python BIDSIFY.py --nifti --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/ --dataset /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/RAW_IMAGING_DATA/data/sub-RID0280_AX_FLAIR_4_20161010125629.nii  --subject_number HUP001 --uid_number 0 --session 001 --run 01 --imaging_data_type anat --imaging_scan_type MR --imaging_modality flair --imaging_task None --imaging_acq ax --imaging_ce None`
+
+#### Multi Nifti
+`python BIDSIFY.py --nifti --datalake datalakes/R61_datalake.pickle --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/ --input_csv samples/inputs/sample_nifti_inputs.csv`
+
+
+### iEEG.org Downloads
+
+#### Download from iEEG.org using an input table with times
+`python BIDSIFY.py --ieeg --username BJPrager --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/  --input_csv samples/inputs/download_by_times.csv`
+
+#### Download from iEEG.org using an input table with annotation layers
+`python BIDSIFY.py --ieeg --username BJPrager --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/  --annotations --input_csv samples/inputs/download_by_annotations.csv`
+
+
+
 <!---
 ### Exploring my data after conversion
 In order to find specific files, and to avoid duplicate downloads, the code creates a manifest document that stores the original filename and resulting BIDS keywords for every file. By default this file is called `subject_map.csv` and is located in the bids root directory.
@@ -221,8 +252,10 @@ We provide a few sample commands here. Note, all examples utilize a username and
 #### Multi Nifti
 `python BIDSIFY.py --nifti --datalake datalakes/R61_datalake.pickle --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/ --input_csv samples/inputs/sample_nifti_inputs.csv`
 
+```
 #### Find targets
 `python utils/find_targets.py --tokendict /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/filetokens.dict --outfile sample_files`
+```
 
 ## Assigning a `--uid` 
 This is an additional flag used by the CNT to create a unique identifier for each patient that may not map to the BIDS subject keyword. Each dataset may have slightly different naming conventions, but this identifier is meant to let us map data back a redcap ID or MRN when viewed behind a clinical firewall. 
