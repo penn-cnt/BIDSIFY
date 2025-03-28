@@ -218,4 +218,5 @@ We provide a few sample commands here. Note, all examples utilize a username and
 > python BIDSIFY.py --ieeg --username BJPrager --bids_root <path-to-bids-root>  --annotations --input_csv samples/inputs/download_by_annotations.csv
 
 ## Upcoming Features
-Lorem Ipsum.
+1. Data Error Handling
+    - When working with data that has errors, the code fails to save. There should be options added to either save data before and after a bad data segment or mask bad data. This shouldn't be the default, but for projects where large datasets are expected, the ability to excise bad segments should be allowed.
