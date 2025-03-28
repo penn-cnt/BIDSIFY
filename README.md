@@ -189,10 +189,10 @@ We provide a few sample commands here. Note, all examples utilize a username and
 
 ### EDF Conversions
 
-#### Single edf
+#### Single edf with BIDS keywords in CLI (and optional target file to include)
 > python BIDSIFY.py --edf --bids_root <path-to-bids-root>  --dataset <path-to-edf> --subject HUP001 --uid_number 1 --session 1 --run 1 --overwrite --target <path-to-target-file>
 
-#### Multi edf with anonymization/phi checks
+#### Multi edf with anonymization/phi checks and BIDS keywords in an input_csv
 > python BIDSIFY.py --edf  --bids_root <path-to-bids-root> --input_csv samples/inputs/sample_edf_inputs_w_target.csv --anonymize
 
 ### Nifti Datasets
