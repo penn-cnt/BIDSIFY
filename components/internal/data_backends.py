@@ -16,6 +16,13 @@ def return_backend(user_request='mne'):
         return nibabel_handler()
 
 class backend_observer(Observer):
+    """
+    Data observer listening for new data that is successfully loaded into memory.
+    Kicks off workflows in a backend to perform any needed steps to get the data ready for saving.
+
+    Args:
+        Observer (_type_): _description_
+    """
 
     def listen_data(self):
 
@@ -31,16 +38,30 @@ class backend_observer(Observer):
             self.type_list.append(None)
 
 class MNE_handler:
+    """
+    Back-end handler using MNE as its core component. It is meant to read data into memory and on a succesful
+    data load, perform any required steps for saving the data into BIDS. For example, MNE requires an info object
+    to be attached to a raw data object before it can be exported to BIDS.
+
+    Required methods:
+        - read_data (extension point): Method for reading data into memory using MNE. Checks file extension to figure out
+        the right MNE method to use for the input timeseries format.
+        - workflow: Method that controls the flow of how data is prepared for export.
+    """
 
     def __init__(self):
         pass
 
     def read_data(self,inpath):
         """
-        Read in data using the MNE backend.
+        Read data into memory. Checks for file extension of the path to determine the correct methodology.
+        Extension point for the mne_handler.
 
         Args:
-            inpath (str): Filepath to input data
+            inpath (str, filepath): Filepath to data to read in.
+
+        Returns:
+            tuple: data, channels, sampling frequency, annotations, Success flag, Any potential error messages
         """
         
         if inpath.endswith('.edf'):
@@ -56,6 +77,16 @@ class MNE_handler:
                 return None,None,None,None,False,e
 
     def workflow(self,args,data_object):
+        """
+        Workflow for MNE data preparation.
+
+        Args:
+            args (Namespace): Entry point arguments.
+            data_object (tuple): Tuple with the raw data, channels, sampling frequency, and annotations.
+
+        Returns:
+            tuple: Tuple of the MNE raw object and the best guess for the data type (i.e ieeg,seeg, etc.)
+        """
 
         # Save the inputs to class instance
         self.args     = args
@@ -192,11 +223,30 @@ class MNE_handler:
         return True
 
 class nibabel_handler:
+    """
+    Back-end handler using Nibabel as its core component. It is meant to read data into memory and on a succesful
+    data load, perform any required steps for saving the data into BIDS. For example, MNE requires an info object
+    to be attached to a raw data object before it can be exported to BIDS.
+
+    Required methods:
+        - read_data (extension point): Method for reading data into memory using Nibabel.
+        - workflow: Method that controls the flow of how data is prepared for export.
+    """
 
     def __init__(self):
         pass
 
     def read_data(self,inpath):
+        """
+        Read data into memory. Checks for file extension of the path to determine the correct methodology.
+        Extension point for the nibabel_handler.
+
+        Args:
+            inpath (str, filepath): Filepath to data to read in.
+
+        Returns:
+            tuple: data, Success flag, Any potential error messages
+        """
 
         if inpath.endswith('.nii'):
             try:
@@ -210,8 +260,5 @@ class nibabel_handler:
         # Save the inputs to class instance
         self.args = args
         self.data = data_object[0]
-
-        # Perform any data preprocessing here
-        # self.deface_data()
         
         return self.data,None

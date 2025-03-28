@@ -125,8 +125,16 @@ class edf_handler(Subject):
             self.add_data_observer(phi_observer)
         self.add_data_observer(backend_observer)
 
+        ##############################
+        ##### Metadata Observers #####
+        ##############################
+
         # Add a metadata observer. In this context, if data can be read in and prepared for saving to BIDS, create the proposed BIDS pathing.
         self.add_meta_observer(BIDS_observer)
+
+        ####################################
+        ##### Postprocessing Observers #####
+        ####################################
 
         # Add any post processing scripts
         self.add_postprocessor_observer(nlp_token_observer)

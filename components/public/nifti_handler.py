@@ -106,13 +106,28 @@ class nifti_handler(Subject):
         self._data_observers        = []
         self._postprocess_observers = []
 
-        # Attach observers
+
+        ##########################
+        ##### Data Observers #####
+        ##########################
+        # Note. This is where you might want to add something like a defacing option. 
+
+        # Manages how to read in and prepare data for saving to disk for the currently selected backend
         if self.args.anonymize:
             self.add_data_observer(phi_observer)
         self.add_data_observer(backend_observer)
-        self.add_meta_observer(BIDS_observer)        
-        self.add_postprocessor_observer(nlp_token_observer)
-        self.add_postprocessor_observer(yasa_observer)
+
+        ##############################
+        ##### Metadata Observers #####
+        ##############################
+
+        # Add a metadata observer. In this context, if data can be read in and prepared for saving to BIDS, create the proposed BIDS pathing.
+        self.add_meta_observer(BIDS_observer)
+
+        ####################################
+        ##### Postprocessing Observers #####
+        ####################################
+        # This would be the place to put something like reconstruction, etc.
 
     def get_inputs(self, multiflag=False, multiinds=None):
         """
