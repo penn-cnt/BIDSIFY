@@ -201,7 +201,7 @@ We provide a few sample commands here. Note, all examples utilize a username and
 > python BIDSIFY.py --nifti --bids_root <path-to-bids-root> --dataset <path-to-nifti-file>  --subject_number HUP001 --uid_number 0 --session 001 --run 01 --imaging_data_type anat --imaging_scan_type MR --imaging_modality flair --imaging_task None --imaging_acq ax --imaging_ce None
 
 ### Single Nifti with interactive imaging keyword selection
->python BIDSIFY.py --nifti --bids_root /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/tests/single/ --dataset /Users/bjprager/Documents/GitHub/CNT-codehub/user_data/RAW_IMAGING_DATA/data/sub-RID0280_AX_FLAIR_4_20161010125629.nii  --subject_number HUP001 --uid_number 0 --session 001 --run 01
+>python BIDSIFY.py --nifti --bids_root <path-to-bids-root> --dataset <path-to-nifti-file> --subject_number HUP001 --uid_number 0 --session 001 --run 01
 
 #### Multi Nifti with Datalake for easier keyword generation
 > python BIDSIFY.py --nifti --datalake <path-to-datalake> --bids_root <path-to-bids-root> --input_csv samples/inputs/sample_nifti_inputs.csv
