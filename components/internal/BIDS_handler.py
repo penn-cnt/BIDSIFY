@@ -14,6 +14,9 @@ from mne import Annotations
 from mne.export import export_raw
 from mne_bids import BIDSPath,write_raw_bids
 
+# Nibabel imports
+import nibabel
+
 # Pybids imports
 from bids import BIDSLayout
 from bids.layout.writing import build_path
@@ -412,7 +415,10 @@ class BIDS_handler_pybids:
             current_files = glob.glob(f"{root_file}*")
             for jfile in current_files:
                 extension = jfile.split('.')[-1]  
-                shutil.copyfile(jfile, f"{self.bids_path}.{extension}")
+                if jfile == self.file_path:
+                    nibabel.save(idata, f"{self.bids_path}.{extension}") 
+                else:
+                    shutil.copyfile(jfile, f"{self.bids_path}.{extension}")
             
             # Check for the dataset description, which pybids requires
             output_path = os.path.join(self.bids_root, 'dataset_description.json')
