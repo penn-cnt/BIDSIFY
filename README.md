@@ -8,6 +8,8 @@ BIDSIFY is a package designed to convert various epilepsy data sources into BIDS
 - [Supported Data Types](#Supported-Data-Types)
 - [Usage](#Usage)
 - [Converting Multiple files](#Converting-Multiple-files)
+- [Sample Commands](#Sample-Commands)
+- [Upcoming Features](#Upcoming-features)
 
 <!--
 - [Contributing](#contributing)
@@ -200,6 +202,9 @@ We provide a few sample commands here. Note, all examples utilize a username and
 #### Single Nifti
 > python BIDSIFY.py --nifti --bids_root <path-to-bids-root> --dataset <path-to-nifti-file>  --subject_number HUP001 --uid_number 0 --session 001 --run 01 --imaging_data_type anat --imaging_scan_type MR --imaging_modality flair --imaging_task None --imaging_acq ax --imaging_ce None
 
+### Single Nifti with interactive imaging keyword selection
+>python BIDSIFY.py --nifti --bids_root <path-to-bids-root> --dataset <path-to-nifti-file> --subject_number HUP001 --uid_number 0 --session 001 --run 01
+
 #### Multi Nifti with Datalake for easier keyword generation
 > python BIDSIFY.py --nifti --datalake <path-to-datalake> --bids_root <path-to-bids-root> --input_csv samples/inputs/sample_nifti_inputs.csv
 
@@ -212,48 +217,5 @@ We provide a few sample commands here. Note, all examples utilize a username and
 #### Download from iEEG.org using an input table with annotation layers
 > python BIDSIFY.py --ieeg --username BJPrager --bids_root <path-to-bids-root>  --annotations --input_csv samples/inputs/download_by_annotations.csv
 
-<!---
-```
-#### Find targets
-`python utils/find_targets.py --tokendict <path-to-bids-root>filetokens.dict --outfile sample_files`
-```
-
-## Assigning a `--uid` 
-This is an additional flag used by the CNT to create a unique identifier for each patient that may not map to the BIDS subject keyword. Each dataset may have slightly different naming conventions, but this identifier is meant to let us map data back a redcap ID or MRN when viewed behind a clinical firewall. 
-
-If making a dataset for your own use, you can ignore this value. If you wish to make a lab dataset, please reach out to the data team for help with determining the correct uid to assign.
-
-## Large data pulls
-`EEG BIDS` currently provides a multithreading option to download larger collections of data quickly.
-
-**Note** If planning to download lots of data to one of the lab servers, please reach out to the data team to discuss the best strategy. 
-
-## Repository Breakdown
-
-We provide a quick overview of the different parts of the repository here.
-
-### Files
-
-#### `BIDSIFY.py`
-This is the user-interface portion of the code. You can access detailed usage instructions by running:
-```bash
-python BIDSIFY.py --help
-```
-
-### Folders
-
-#### `modules`
-This folder contains the backend code that makes up EEG BIDS, providing functionality to convert and handle timeseries data.
-
-#### `samples`
-Includes numerous sample CLI calls and input files to help you get started using the package.
-
-
-
-## Contributing
-(In Progress)
-
-If adding support for new data inputs, you can make a new object in components.public that reads in your raw data and generates the proper bids keywords. 
-
-Once you have read in your data and generated keywords, you just need to alert the observers to generate the actual backend data. You can do this by
--->
+## Upcoming Features
+Lorem Ipsum.
