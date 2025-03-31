@@ -220,3 +220,5 @@ We provide a few sample commands here. Note, all examples utilize a username and
 ## Upcoming Features
 1. Data Error Handling
     - When working with data that has errors, the code fails to save. There should be options added to either save data before and after a bad data segment or mask bad data. This shouldn't be the default, but for projects where large datasets are expected, the ability to excise bad segments should be allowed.
+2. Imaging BIDS Dataset Information
+    - At present, the BIDS dataset for imaging data is minimal. The required data is present, but the dataset meta information needs to be expanded.
