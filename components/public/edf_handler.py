@@ -242,6 +242,9 @@ class edf_handler(Subject):
         Loop over the EDF file list and load data. If unable to load data, or the data observers find issues, append a None to the output manifest.
         """
 
+        # Store the filename to class instance
+        self.file_name = self.edf_files[file_cntr]
+
         # Load the data exists exception handler so we can avoid already downloaded data.
         DE = DataExists(self.data_record)
 
@@ -256,7 +259,6 @@ class edf_handler(Subject):
         if DE.check_default_records(self.edf_files[file_cntr],istart,iduration,overwrite=self.args.overwrite):
             
             # Load data using the appropriate backend
-            self.file_name = self.edf_files[file_cntr]
             self.load_data(self.file_name)
                     
             # If successful, notify data observer. Else, add a skip
