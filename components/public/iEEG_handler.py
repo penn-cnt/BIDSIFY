@@ -1,5 +1,6 @@
 import re
 import os
+import sys
 import time
 import uuid
 import getpass
@@ -602,6 +603,9 @@ class ieeg_handler(Subject):
                     # Add the datarow to the records
                     self.current_record  = self.BH.make_records('ieeg.org')
                     self.new_data_record = PD.concat((self.new_data_record,self.current_record))
+            else:
+                if self.args.error_code:
+                    sys.exit(1)
 
     ###############################################
     ###### IEEG Connection related functions ######

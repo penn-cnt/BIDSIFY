@@ -321,3 +321,6 @@ class nifti_handler(Subject):
                 # Save is a path was successfully created
                 if self.success_flag:
                     self.BH.save_data(idata)
+            else:
+                if self.args.error_code:
+                    sys.exit(1)

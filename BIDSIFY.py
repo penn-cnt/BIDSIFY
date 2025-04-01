@@ -287,6 +287,7 @@ if __name__ == '__main__':
     misc_group.add_argument("--connection_error_folder", default=None, type=str, help="If provided, save connection errors to this folder. Helps determine access issues after a large download.")
     misc_group.add_argument("--save_raw", action='store_true', default=False, help="Save the data as a raw csv")
     misc_group.add_argument("--event_from_backend", action='store_true', default=False, help="Use backend software to try and infer events.")
+    misc_group.add_argument("--error_code", action='store_true', default=False, help="Return error codes if any data fails. Used in automated pipeline environments.")
     args = parser.parse_args()
 
     # Basic clean-up of path names

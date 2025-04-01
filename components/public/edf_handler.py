@@ -365,4 +365,9 @@ class edf_handler(Subject):
 
                     # Run post processing
                     self.notify_postprocess_observers()
-        
+                else:
+                    if self.args.error_code:
+                        sys.exit(1)
+            else:
+                if self.args.error_code:
+                    sys.exit(1)

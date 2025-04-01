@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import time
 import glob
@@ -442,3 +443,5 @@ class BIDS_handler_pybids:
                 json.dump(merged_data, f, indent=4)
         else:
             print("Invalid BIDS keywords. Could not save to BIDS format.")
+            if self.args.error_code:
+                sys.exit(1)
