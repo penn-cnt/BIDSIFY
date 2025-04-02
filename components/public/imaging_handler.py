@@ -11,9 +11,9 @@ from components.internal.nlp_token_handler import *
 from components.internal.yasa_handler import *
 from components.internal.PHI_handler import *
 
-class nifti_handler(Subject):
+class imaging_handler(Subject):
     """
-    This class manages the methods that enable NIFTI conversion to BIDS structure.
+    This class manages the methods that enable imaging conversion to BIDS structure.
     The method 'workflow' manages the basic steps required.
     It is the subject object that maintains a list of observers. 
     These observers enable a variety of automated functionality.
@@ -54,7 +54,7 @@ class nifti_handler(Subject):
 
         # Manage input argument exceptions and then save the data
         IE        = InputExceptions()
-        self.args = IE.nifti_input_exceptions(args)
+        self.args = IE.imaging_input_exceptions(args)
 
         # Create the object pointers to the backend and bids library of choice
         self.BH      = BIDS_handler_pybids(args)
@@ -81,7 +81,7 @@ class nifti_handler(Subject):
         self.get_inputs()
 
         # Loop over the files individually for edf files. This option has to handle large files.
-        for fidx in range(len(self.nifti_files)):
+        for fidx in range(len(self.imaging_files)):
 
             # Make a data validation flag. Originally we used a phi flag, but this is more general, in case some new use-case comes up to stop data getting loaded into memory.
             self.valid_data = True
@@ -146,7 +146,7 @@ class nifti_handler(Subject):
             input_args = input_args.replace({np.nan:None})
 
             # Pull out the relevant data pointers for required columns.
-            self.nifti_files = list(input_args['orig_filename'].values)
+            self.imaging_files = list(input_args['orig_filename'].values)
 
             # Get the unique identifier if provided
             if 'uid' in input_args.columns:
@@ -217,7 +217,7 @@ class nifti_handler(Subject):
 
         else:
             # Get the required information if we don't have an input csv
-            self.nifti_files    = [self.args.dataset]
+            self.imaging_files    = [self.args.dataset]
             self.uid_list       = [self.args.uid_number]
             self.subject_list   = [self.args.subject_number]
             self.session_list   = [self.args.session]
@@ -263,8 +263,8 @@ class nifti_handler(Subject):
         # Load the data exists exception handler so we can avoid already downloaded data.
         DE = DataExists(self.data_record)
 
-        if DE.check_default_records(self.nifti_files[file_cntr],None,None,overwrite=self.args.overwrite):
-            self.load_data(self.nifti_files[file_cntr])
+        if DE.check_default_records(self.imaging_files[file_cntr],None,None,overwrite=self.args.overwrite):
+            self.load_data(self.imaging_files[file_cntr])
                     
             # Notify data observer if successful, otherwise pad a None to the output manifest
             if self.success_flag:
@@ -276,7 +276,7 @@ class nifti_handler(Subject):
                 self.data_list.append(None)
                 self.type_list.append(None)
         else:
-            print(f"Skipping {self.nifti_files[file_cntr]}.")
+            print(f"Skipping {self.imaging_files[file_cntr]}.")
             self.data_list.append(None)
             self.type_list.append(None)
 
@@ -287,7 +287,7 @@ class nifti_handler(Subject):
         Suggested approach would be to add a listener to the data observer.
 
         Args:
-            infile (str): Filepath to nifti data
+            infile (str): Filepath to imaging data
         """
 
         self.data,self.success_flag,error_info = self.backend.read_data(infile)
@@ -305,13 +305,13 @@ class nifti_handler(Subject):
             if idata != None:
 
                 # Update keywords
-                self.keywords = {'filename':self.nifti_files[fidx],'root':self.args.bids_root,'uid':self.uid_list[fidx],
+                self.keywords = {'filename':self.imaging_files[fidx],'root':self.args.bids_root,'uid':self.uid_list[fidx],
                                  'subject':self.subject_list[fidx],'session':self.session_list[fidx],'run':self.run_list[fidx],
                                  'data_type':self.data_type_list[fidx],'scan_type':self.scan_type_list[fidx],'modality':self.modality_list[fidx],
                                  'task':self.task_list[fidx],'acq':self.acq_list[fidx],'ce':self.ce_list[fidx]}
                 
                 # get the protocol name
-                json_path     = self.nifti_files[fidx].split(".ni")[0]+'.json'
+                json_path     = self.imaging_files[fidx].split(".ni")[0]+'.json'
                 self.metadata = json.load(open(json_path,'r'))
                 self.series   = self.metadata["ProtocolName"].lower()
 

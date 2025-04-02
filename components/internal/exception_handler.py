@@ -90,15 +90,15 @@ class InputExceptions:
     def __init__(self):
         pass
 
-    def edf_input_exceptions(self,args):
+    def eeg_input_exceptions(self,args):
         """
-        Custom argument exceptions for EDF data conversion. 
+        Custom argument exceptions for eeg data conversion. 
 
         Args:
             args (Namespace): Argument parser.
 
         Raises:
-            Exception: Generic exception to alert user to EDF specific argument configuration.
+            Exception: Generic exception to alert user to eeg specific argument configuration.
 
         Returns:
             args (Namespace): Updated Argument parser.
@@ -139,7 +139,7 @@ class InputExceptions:
 
         return args
     
-    def nifti_input_exceptions(self,args):
+    def imaging_input_exceptions(self,args):
         """
         Custom argument exceptions for imaging data conversion. 
 
@@ -147,7 +147,7 @@ class InputExceptions:
             args (Namespace): Argument parser.
 
         Raises:
-            Exception: Generic exception to alert user to EDF specific argument configuration.
+            Exception: Generic exception to alert user to imaging specific argument configuration.
 
         Returns:
             args (Namespace): Updated Argument parser.
