@@ -91,7 +91,7 @@ Currently, the package supports the following data sources:
 ### Timeseries
 We currently support the following timeseries data sources
 
-- EDF (using the `--edf` flag)
+- EDF (using the `--eeg` flag)
 - iEEG.org (using the `--ieeg` flag)
 - Pennsieve (using the `--pennsieve` flag)
     - **Note**: This option is not yet fully implemented as the Pennsieve team works on a Python API.
@@ -99,10 +99,7 @@ We currently support the following timeseries data sources
 ### Imaging
 We currently support the following imaging data sources
 
-- Nifti data (using the `--nifti` flag)
-
-### Future Data Sources
-Future releases will change the use of specific input flags (i.e. --edf,--nifti,etc) to --timeseries, --imaging or similar logic. At present the back-end logic can read in different data types without breaking the workflow, but at the time of implementation the only required use cases have centered on these specific data formats.
+- Nifti data (using the `--imaging` flag)
 
 #### Adding new data sources
 The recommended method for adding a new data source is to add a new handler for the data source in the components/public folder. This public facing handler is meant to manage the general flow of data processing. Code responsible for actually reading in timeseries or imaging data, as well as running any postprocessing, is available within the components/internal folder, and can be called by attaching their associated observer method. For more information, we recommend visiting [here](https://github.com/penn-cnt/BIDSIFY/blob/main/documents/SOP/BIDSIFY.png).
@@ -192,21 +189,21 @@ We provide a few sample commands here. Note, all examples utilize a username and
 ### EDF Conversions
 
 #### Single edf with BIDS keywords in CLI (and optional target file to include)
-> python BIDSIFY.py --edf --bids_root <path-to-bids-root>  --dataset <path-to-edf> --subject HUP001 --uid_number 1 --session 1 --run 1 --overwrite --target <path-to-target-file>
+> python BIDSIFY.py --eeg --bids_root <path-to-bids-root>  --dataset <path-to-edf> --subject HUP001 --uid_number 1 --session 1 --run 1 --overwrite --target <path-to-target-file>
 
 #### Multi edf with anonymization/phi checks and BIDS keywords in an input_csv
-> python BIDSIFY.py --edf  --bids_root <path-to-bids-root> --input_csv samples/inputs/sample_edf_inputs_w_target.csv --anonymize
+> python BIDSIFY.py --eeg  --bids_root <path-to-bids-root> --input_csv samples/inputs/sample_edf_inputs_w_target.csv --anonymize
 
 ### Nifti Datasets
 
 #### Single Nifti
-> python BIDSIFY.py --nifti --bids_root <path-to-bids-root> --dataset <path-to-nifti-file>  --subject_number HUP001 --uid_number 0 --session 001 --run 01 --imaging_data_type anat --imaging_scan_type MR --imaging_modality flair --imaging_task None --imaging_acq ax --imaging_ce None
+> python BIDSIFY.py --imaging --bids_root <path-to-bids-root> --dataset <path-to-nifti-file>  --subject_number HUP001 --uid_number 0 --session 001 --run 01 --imaging_data_type anat --imaging_scan_type MR --imaging_modality flair --imaging_task None --imaging_acq ax --imaging_ce None
 
 ### Single Nifti with interactive imaging keyword selection
->python BIDSIFY.py --nifti --bids_root <path-to-bids-root> --dataset <path-to-nifti-file> --subject_number HUP001 --uid_number 0 --session 001 --run 01
+>python BIDSIFY.py --imaging --bids_root <path-to-bids-root> --dataset <path-to-nifti-file> --subject_number HUP001 --uid_number 0 --session 001 --run 01
 
 #### Multi Nifti with Datalake for easier keyword generation
-> python BIDSIFY.py --nifti --datalake <path-to-datalake> --bids_root <path-to-bids-root> --input_csv samples/inputs/sample_nifti_inputs.csv
+> python BIDSIFY.py --imaging --datalake <path-to-datalake> --bids_root <path-to-bids-root> --input_csv samples/inputs/sample_nifti_inputs.csv
 
 
 ### iEEG.org Downloads
