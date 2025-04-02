@@ -11,7 +11,7 @@ from components.internal.nlp_token_handler import *
 from components.internal.yasa_handler import *
 from components.internal.PHI_handler import *
 
-class nifti_handler(Subject):
+class imaging_handler(Subject):
     """
     This class manages the methods that enable NIFTI conversion to BIDS structure.
     The method 'workflow' manages the basic steps required.

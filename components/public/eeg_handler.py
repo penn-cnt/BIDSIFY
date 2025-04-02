@@ -11,9 +11,9 @@ from components.internal.exception_handler import *
 from components.internal.nlp_token_handler import *
 from components.internal.yasa_handler import *
 
-class edf_handler(Subject):
+class eeg_handler(Subject):
     """
-    This class manages the methods that enable EDF conversion to BIDS structure.
+    This class manages the methods that enable timeseries conversion to BIDS structure.
     The method 'workflow' manages the basic steps required.
     It is the subject object that maintains a list of observers. 
     These observers enable a variety of automated functionality.

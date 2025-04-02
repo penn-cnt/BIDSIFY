@@ -6,10 +6,9 @@ from prettytable import PrettyTable, HRuleStyle
 
 # Local import
 from components.internal.BIDS_handler import *
-from components.public.edf_handler import edf_handler
+from components.public.eeg_handler import eeg_handler
 from components.public.iEEG_handler import ieeg_handler
-from components.public.iEEG_handler import ieeg_handler
-from components.public.nifti_handler import nifti_handler
+from components.public.imaging_handler import imaging_handler
 from components.public.pennsieve_handler import pennsieve_handler
 
 # MNE is very chatty. Turn off some warnings. Shouldn't supress legit errors.
@@ -174,22 +173,22 @@ def ieeg(args):
         args (Namespace): Argument parser.
     """
 
-    IH = ieeg_handler(args)
-    IH.workflow()
+    WH = ieeg_handler(args)
+    WH.workflow()
 
-def raw_edf(args):
+def eeg(args):
     """
     Kick off raw edf conversions.
 
     Args:
         args (Namespace): Argument parser.
     """
-    EH = edf_handler(args)
-    EH.workflow()
+    WH = eeg_handler(args)
+    WH.workflow()
 
-def nifti(args):
-    NH = nifti_handler(args)
-    NH.workflow()
+def imaging(args):
+    WH = imaging_handler(args)
+    WH.workflow()
 
 def pennsieve(args):
     """
@@ -199,8 +198,8 @@ def pennsieve(args):
         args (Namespace): Argument parser.
     """
 
-    PH = pennsieve_handler(args)
-    PH.workflow()
+    WH = pennsieve_handler(args)
+    WH.workflow()
 
 if __name__ == '__main__':
 
@@ -218,9 +217,9 @@ if __name__ == '__main__':
     source_group = parser.add_argument_group('Data source options')
     source_option_group = source_group.add_mutually_exclusive_group(required=True)
     source_option_group.add_argument("--ieeg", action='store_true', default=False, help="iEEG data pull.")
-    source_option_group.add_argument("--edf", action='store_true', default=False, help="Raw edf data pull.")
+    source_option_group.add_argument("--eeg", action='store_true', default=False, help="Manage EEG datasets from disk.")
     source_option_group.add_argument("--pennsieve", action='store_true', default=False, help="Pennsieve data pull.")
-    source_option_group.add_argument("--nifti", action='store_true', default=False, help="Imaging data BIDS creation.")
+    source_option_group.add_argument("--imaging", action='store_true', default=False, help="Manage imaging datasets from disk.")
 
     # Check for as yet unimplemnted pennsieve api
     partial_args, _ = parser.parse_known_args()
@@ -296,12 +295,12 @@ if __name__ == '__main__':
     # Select use case
     if args.ieeg:
         ieeg(args)
-    elif args.edf:
-        raw_edf(args)
-    elif args.nifti:
+    elif args.eeg:
+        eeg(args)
+    elif args.imaging:
         if args.backend.lower() == 'mne':
             print("Changing default backend to nibabel... (Use --backend to manually set backend.)")
             args.backend = 'nibabel'
-        nifti(args)
+        imaging(args)
     else:
         print("Please select at least one source from the source group. (--help for all options.)")
