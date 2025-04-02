@@ -28,7 +28,7 @@ class eeg_handler(Subject):
         - Methods that act on the complete BIDS file or BIDS dataset.
             - At present, the post processor acts on each file after generation. This can be modified by changing when notify_postprocess_observers is called in save_data method.
             - Currently we include file token creation and yasa sleep staging. But this can be changed in the attach_objects methods. 
-            - Currently only used on EDF datasets. But attaching new methods to the attach_objects method in another handler will enable the same behavior.
+            - Currently only used on eeg datasets. But attaching new methods to the attach_objects method in another handler will enable the same behavior.
                 - Argparse can be given new keywords to modify logic for postprocessor usage.
             
     Args:
@@ -37,7 +37,7 @@ class eeg_handler(Subject):
 
     def __init__(self,args):
         """
-        Initialize the EDF conversion to BIDS. 
+        Initialize the EEG conversion to BIDS. 
         Clean up input arguments for this use case, then create the observation objects.
 
         Args:
@@ -46,7 +46,7 @@ class eeg_handler(Subject):
 
         # Manage input argument exceptions and then save the data
         IE        = InputExceptions()
-        self.args = IE.edf_input_exceptions(args)
+        self.args = IE.eeg_input_exceptions(args)
 
         # Create the object pointers to the backend, phi, and bids library of choice
         self.BH      = BIDS_handler_MNE(args)
@@ -70,16 +70,16 @@ class eeg_handler(Subject):
         # Determine how to save the data
         self.get_inputs()
 
-        # Loop over the files individually for edf files. This option has to handle large files.
+        # Loop over the files individually for eeg files. This option has to handle large files.
         self.event_list = []
-        for fidx in range(len(self.edf_files)):
+        for fidx in range(len(self.eeg_files)):
 
             # Make a data validation flag. Originally we used a phi flag, but this is more general, in case some new use-case comes up to stop data getting loaded into memory.
             self.valid_data = True
 
             # Create objects to store info.
             # Note. This is inside the file loop since iEEG.org files can be downloaded by clip layer, making a single origin file go to many bids files.
-            # If a single EDF is to be broken up, this same logic can apply here. But it could be moved outside the loop if that is an unlikely use-case.
+            # If a single eeg is to be broken up, this same logic can apply here. But it could be moved outside the loop if that is an unlikely use-case.
             self.data_list  = []
             self.type_list  = []
 
@@ -153,7 +153,7 @@ class eeg_handler(Subject):
             input_args = PD.read_csv(self.args.input_csv)
 
             # Pull out the relevant data pointers for required columns.
-            self.edf_files = list(input_args['orig_filename'].values)
+            self.eeg_files = list(input_args['orig_filename'].values)
 
             # Get the unique identifier if provided
             if 'start' in input_args.columns:
@@ -206,7 +206,7 @@ class eeg_handler(Subject):
                 self.event_files = [self.args.event_file for idx in range(input_args.shape[0])]
         else:
             # Get the required information if we don't have an input csv
-            self.edf_files    = [self.args.dataset]
+            self.eeg_files    = [self.args.dataset]
             self.start_times  = [self.args.start]
             self.durations    = [self.args.duration]
             self.uid_list     = [self.args.uid_number]
@@ -239,11 +239,11 @@ class eeg_handler(Subject):
 
     def load_data_manager(self,file_cntr):
         """
-        Loop over the EDF file list and load data. If unable to load data, or the data observers find issues, append a None to the output manifest.
+        Loop over the eeg file list and load data. If unable to load data, or the data observers find issues, append a None to the output manifest.
         """
 
         # Store the filename to class instance
-        self.file_name = self.edf_files[file_cntr]
+        self.file_name = self.eeg_files[file_cntr]
 
         # Load the data exists exception handler so we can avoid already downloaded data.
         DE = DataExists(self.data_record)
@@ -256,7 +256,7 @@ class eeg_handler(Subject):
             istart    = None
             iduration = None
 
-        if DE.check_default_records(self.edf_files[file_cntr],istart,iduration,overwrite=self.args.overwrite):
+        if DE.check_default_records(self.eeg_files[file_cntr],istart,iduration,overwrite=self.args.overwrite):
             
             # Load data using the appropriate backend
             self.load_data(self.file_name)
@@ -279,12 +279,12 @@ class eeg_handler(Subject):
 
     def load_data(self,infile):
         """
-        Load the edf data into memory and some associated objects. This is so we can make sure it is readable, and any preprocessing
+        Load the eeg data into memory and some associated objects. This is so we can make sure it is readable, and any preprocessing
         of the data can take place. (i.e. Cleaning channel names, removing artifacts, etc.) Currently we do not do any preprocessing,
         but leave this method in so it is easier to perform. Suggested approach would be to add a listener to the data observer.
 
         Args:
-            infile (str): Filepath to EDF data
+            infile (str): Filepath to eeg data
         """
 
         self.data, self.channels, self.fs, self.annotations, self.success_flag,error_info = self.backend.read_data(infile)
@@ -325,7 +325,7 @@ class eeg_handler(Subject):
             if iraw != None:
 
                 # Define start time and duration. Can differ for different filetypes
-                # May not exist for a raw edf transfer, so add a None outcome.
+                # May not exist for a raw eeg transfer, so add a None outcome.
                 try:
                     istart    = self.start_times[fidx]
                     iduration = self.durations[fidx]
@@ -334,22 +334,22 @@ class eeg_handler(Subject):
                     iduration = None
 
                 # Update keywords
-                self.keywords = {'filename':self.edf_files[fidx],'root':self.args.bids_root,'datatype':self.type_list[idx],
+                self.keywords = {'filename':self.eeg_files[fidx],'root':self.args.bids_root,'datatype':self.type_list[idx],
                                  'session':self.session_list[fidx],'subject':self.subject_list[fidx],'run':self.run_list[fidx],
                                  'task':'rest','fs':iraw.info["sfreq"],'start':istart,'duration':iduration,'uid':self.uid_list[fidx]}
                 self.notify_metadata_observers(self.args.backend)
 
                 # Save the data
-                print(f"Converting {self.edf_files[fidx]} to BIDS...")
+                print(f"Converting {self.eeg_files[fidx]} to BIDS...")
                 if self.event_list[fidx] == None:
                     success_flag = self.BH.save_data_wo_events(iraw, debug=self.args.debug)
                 else:
                     self.events = self.event_list[fidx]
                     success_flag = self.BH.save_data_w_events(iraw, debug=self.args.debug)
 
-                if not success_flag and self.args.copy_edf:
-                    print(f"Copying {self.edf_files[fidx]} to BIDS...")
-                    success_flag = self.BH.copy_data(self.edf_files[fidx],'edf',self.type_list[idx],debug=self.args.debug)
+                if not success_flag and self.args.copy_eeg:
+                    print(f"Copying {self.eeg_files[fidx]} to BIDS...")
+                    success_flag = self.BH.copy_data(self.eeg_files[fidx],'eeg',self.type_list[idx],debug=self.args.debug)
 
                 # If the data wrote out correctly, update the data record
                 if success_flag:
@@ -362,7 +362,7 @@ class eeg_handler(Subject):
                             print(f"Target Writout error: {e}")
                     
                     # Add the datarow to the records
-                    self.current_record  = self.BH.make_records('edf_file')
+                    self.current_record  = self.BH.make_records('eeg_file')
                     self.new_data_record = PD.concat((self.new_data_record,self.current_record))
 
                     # Run post processing

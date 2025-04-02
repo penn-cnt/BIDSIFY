@@ -87,34 +87,34 @@ def print_examples():
     print("\n\n")
 
     ##############################################
-    ##### Example of how to convert EDF data #####
+    ##### Example of how to convert eeg data #####
     ##############################################
 
-    # Print a header block for the EDF section.
+    # Print a header block for the eeg section.
     print("############################")
-    print("####### EDF Commands #######")
+    print("####### eeg Commands #######")
     print("############################")
 
     # Read in the samples without targets
-    print("Convert a single EDF file without a csv, using command line keyword calls. Read in a target file to associate with the bids dataset.")
+    print("Convert a single eeg file without a csv, using command line keyword calls. Read in a target file to associate with the bids dataset.")
     print("Example instantiation:")
-    print("    python BIDSIFY.py --edf --bids_root <path-to-output-root-directory> --dataset <path-to-edf> --subject HUP001 --uid_number 1 --session 1 --run 1 --target <path-to-target-file>")
+    print("    python BIDSIFY.py --eeg --bids_root <path-to-output-root-directory> --dataset <path-to-eeg> --subject HUP001 --uid_number 1 --session 1 --run 1 --target <path-to-target-file>")
     print("\n\n")
 
     # Read in the samples without targets
-    print("Convert multiple EDF files into a BIDS directory.")
-    print_table('/samples/inputs/sample_edf_inputs.csv')
+    print("Convert multiple eeg files into a BIDS directory.")
+    print_table('/samples/inputs/sample_eeg_inputs.csv')
     print("Path to sample csv: ./samples/inputs/sample_edf_inputs.csv")
     print("Example instantiation:")
-    print("    python BIDSIFY.py --edf --bids_root <path-to-output-root-directory> --input_csv <path-to-csv>")
+    print("    python BIDSIFY.py --eeg --bids_root <path-to-output-root-directory> --input_csv <path-to-csv>")
     print("\n\n")
 
     # Read in the samples with targets
-    print("Convert multiple EDF files into a BIDS directory with target data.")
-    print_table('/samples/inputs/sample_edf_inputs_w_target.csv')
+    print("Convert multiple eeg files into a BIDS directory with target data.")
+    print_table('/samples/inputs/sample_eeg_inputs_w_target.csv')
     print("Path to sample csv: ./samples/inputs/sample_edf_inputs_w_target.csv")
     print("Example instantiation:")
-    print("    python BIDSIFY.py --edf --bids_root <path-to-output-root-directory> --input_csv <path-to-csv>")
+    print("    python BIDSIFY.py --eeg --bids_root <path-to-output-root-directory> --input_csv <path-to-csv>")
     print("\n\n")
 
     #########################################################
@@ -178,7 +178,7 @@ def ieeg(args):
 
 def eeg(args):
     """
-    Kick off raw edf conversions.
+    Kick off raw eeg conversions.
 
     Args:
         args (Namespace): Argument parser.
@@ -282,7 +282,7 @@ if __name__ == '__main__':
     misc_group.add_argument("--include_annotation", action='store_true', default=False, help="If downloading by time, include annotations/events file. Defaults to scalp layer names.")
     misc_group.add_argument("--backend", type=str, default='MNE', help="Backend data handler.")
     misc_group.add_argument("--zero_bad_data", action='store_true', default=False, help="Zero out bad data potions.")
-    misc_group.add_argument("--copy_edf", action='store_true', default=False, help="Straight copy an edf to bids format. Do not writeout via mne. (Still checks for valid data using mne)")
+    misc_group.add_argument("--copy_eeg", action='store_true', default=False, help="Straight copy an eeg to bids format. Do not writeout via mne. (Still checks for valid data using mne)")
     misc_group.add_argument("--connection_error_folder", default=None, type=str, help="If provided, save connection errors to this folder. Helps determine access issues after a large download.")
     misc_group.add_argument("--save_raw", action='store_true', default=False, help="Save the data as a raw csv")
     misc_group.add_argument("--event_from_backend", action='store_true', default=False, help="Use backend software to try and infer events.")
