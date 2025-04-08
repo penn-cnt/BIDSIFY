@@ -1,3 +1,4 @@
+edfio
 fooof
 neurodsp
 nltk

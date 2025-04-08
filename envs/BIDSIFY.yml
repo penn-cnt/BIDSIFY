@@ -17,6 +17,7 @@ dependencies:
   - pip:
       - ./wheels/ieeg-1.6-py3-none-any.whl
       - edflib-python
+      - edfio
       - mne
       - mne-bids
       - mne-icalabel

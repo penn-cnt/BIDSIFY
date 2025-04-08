@@ -205,7 +205,6 @@ We provide a few sample commands here. Note, all examples utilize a username and
 #### Multi Nifti with Datalake for easier keyword generation
 > python BIDSIFY.py --imaging --datalake <path-to-datalake> --bids_root <path-to-bids-root> --input_csv samples/inputs/sample_nifti_inputs.csv
 
-
 ### iEEG.org Downloads
 
 #### Download from iEEG.org using an input table with times
@@ -213,6 +212,13 @@ We provide a few sample commands here. Note, all examples utilize a username and
 
 #### Download from iEEG.org using an input table with annotation layers
 > python BIDSIFY.py --ieeg --username BJPrager --bids_root <path-to-bids-root>  --annotations --input_csv samples/inputs/download_by_annotations.csv
+
+## Notes
+
+A few important notes:
+
+1. Overwriting data
+    - If data with the same bids path already exists, BIDSIFY will skip creating new data by default. If you wish to overwrite data, you should use the `--overwrite` flag.
 
 ## Upcoming Features
 1. Data Error Handling

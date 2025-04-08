@@ -137,11 +137,14 @@ class MNE_handler:
 
     def attach_annotations(self):
 
-        # Make a new annotation object to ensure no measurement date issue mismatches
-        new_annot = mne.Annotations(onset=self.annots.onset,duration=self.annots.duration,description=self.annots.description)
+        try:
+            # Make a new annotation object to ensure no measurement date issue mismatches
+            new_annot = mne.Annotations(onset=self.annots.onset,duration=self.annots.duration,description=self.annots.description)
 
-        # Set annotation to raw object
-        self.iraw.set_annotations(new_annot)
+            # Set annotation to raw object
+            self.iraw.set_annotations(new_annot)
+        except:
+            pass
 
     def get_channel_type(self, threshold=15):
         """
