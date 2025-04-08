@@ -171,6 +171,6 @@ class phi_handler:
                 exact_flag  = self.exact_match(itoken)
                 approx_flag = self.approximate_match(itoken)
 
-            if not exact_flag or not approx_flag:
-                return False
+                if not exact_flag or not approx_flag:
+                    return False
         return True
