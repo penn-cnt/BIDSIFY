@@ -17,8 +17,9 @@ class nlp_token_observer(Observer):
 
     def listen_postprocess(self):
 
-        NLPTKN = nlp_token_handler(self.args.bids_root,self.data_path,self.target_path,f"{self.args.bids_root}filetokens.dict")
-        NLPTKN.workflow()
+        if hasattr(self,'target_path'):
+            NLPTKN = nlp_token_handler(self.args.bids_root,self.data_path,self.target_path,f"{self.args.bids_root}filetokens.dict")
+            NLPTKN.workflow()
 
 class nlp_token_handler:
 
