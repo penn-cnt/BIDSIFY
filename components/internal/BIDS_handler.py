@@ -220,7 +220,7 @@ class BIDS_handler_MNE:
         pickle.dump(target_dict,fp)
         fp.close()
 
-        return self.data_path,self.target_path
+        return self.target_path
 
     def save_data_w_events(self, raw, debug=False):
         """

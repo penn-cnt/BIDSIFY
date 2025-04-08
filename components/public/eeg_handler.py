@@ -351,12 +351,15 @@ class eeg_handler(Subject):
                     print(f"Copying {self.eeg_files[fidx]} to BIDS...")
                     success_flag = self.BH.copy_data(self.eeg_files[fidx],'eeg',self.type_list[idx],debug=self.args.debug)
 
+                # Copy the data path to this instance
+                self.data_path = self.BH.data_path
+
                 # If the data wrote out correctly, update the data record
                 if success_flag:
                     # Save the target info
                     try:
                         self.BH.annotation_manager(iraw)
-                        self.data_path,self.target_path = self.BH.save_targets(self.target_list[fidx])
+                        self.target_path = self.BH.save_targets(self.target_list[fidx])
                     except Exception as e:
                         if self.args.debug:
                             print(f"Target Writout error: {e}")
