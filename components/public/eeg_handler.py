@@ -119,6 +119,7 @@ class eeg_handler(Subject):
         ##########################
         ##### Data Observers #####
         ##########################
+        # Note. This is where you might want to add preprocessors.
 
         # Manages how to read in and prepare data for saving to disk for the currently selected backend
         if self.args.anonymize:
@@ -137,8 +138,10 @@ class eeg_handler(Subject):
         ####################################
 
         # Add any post processing scripts
-        self.add_postprocessor_observer(nlp_token_observer)
-        self.add_postprocessor_observer(yasa_observer)
+        if not self.args.no_sleep_staging:
+            self.add_postprocessor_observer(nlp_token_observer)
+        if not self.args.skip_tokenization:
+            self.add_postprocessor_observer(yasa_observer)
 
     def get_inputs(self, multiflag=False, multiinds=None):
         """

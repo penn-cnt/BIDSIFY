@@ -267,7 +267,14 @@ if __name__ == '__main__':
     bids_group.add_argument("--task", type=str, default='rest', help="Task string to use when not referencing a input_csv file value. Used to populate all entries if not explicitly set.")
     bids_group.add_argument("--target", type=str, help="Target to associate with the data. (i.e. PNES/EPILEPSY/etc.)")
     bids_group.add_argument("--event_file", type=str, default=None, help="Path to an events file, if applicable.")
-    
+
+    preprocessor_group = parser.add_argument_group('Preprocessing keyword options')
+    preprocessor_group.add_argument("--deface", action='store_true', default=False, help="Deface imaging data before saving to BIDS.")
+
+    postprocessor_group = parser.add_argument_group('Postprocessing keyword options')
+    postprocessor_group.add_argument("--no_sleep_staging", action='store_true', default=False, help="Do not perform sleep staging on timeseries data.")
+    postprocessor_group.add_argument("--skip_tokenization", action='store_true', default=False, help="Do not tokenize annotations and metadata. Tokenization produces text tokens to neatly create patient lists based on shared tokens (i.e. Files containing the word 'sleep','seizure','blink',etc).")
+
     multithread_group = parser.add_argument_group('Multithreading Options')
     multithread_group.add_argument("--multithread", action='store_true', default=False, help="Multithreaded download.")
     multithread_group.add_argument("--ncpu", default=1, type=int, help="Number of CPUs to use when downloading.")

@@ -110,7 +110,10 @@ class imaging_handler(Subject):
         ##########################
         ##### Data Observers #####
         ##########################
-        # Note. This is where you might want to add something like a defacing option. 
+        # Note. This is where you might want to add preprocessors.
+        if self.args.deface:
+            print("Defacing not yet implemented. This is a placeholder function.")
+            print("Please check the documents/SOP/BIDSIFY.png to learn where the proper extension method would be for this behavior.")
 
         # Manages how to read in and prepare data for saving to disk for the currently selected backend
         if self.args.anonymize:
