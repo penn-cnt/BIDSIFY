@@ -195,7 +195,7 @@ At present we provide the following postprocessing options
 - **tokenization**: _(Timeseries)._ Tokenize annotations and metadata for each file to create a lookup table that can be queried to make patient cohorts from all data within a dataset. For example, tokens such as sleep, N2, etc. could be queried to get all files in a dataset that match the criteria requested.
 
 ### Adding new pre and post processors
-New pre and post processors can be added by attaching new observer objects within a data type handler. The typical name for this method is `attach_objects`. For more information, please refer to the relevant extension point methods found [here](https://github.com/penn-cnt/BIDSIFY/tree/main/documents/SOP).  
+New pre and post processors can be added by attaching new observer objects within a data type handler. The typical name for this method is `attach_objects`. For more information, please refer to the relevant extension point methods found [here](https://github.com/penn-cnt/BIDSIFY/tree/main/documents).
 
 ## Sample commands
 
