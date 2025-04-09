@@ -8,6 +8,7 @@ BIDSIFY is a package designed to convert various epilepsy data sources into BIDS
 - [Supported Data Types](#Supported-Data-Types)
 - [Usage](#Usage)
 - [Converting Multiple files](#Converting-Multiple-files)
+- [Data Pipelines](#Data-Pipelines)
 - [Sample Commands](#Sample-Commands)
 - [Upcoming Features](#Upcoming-features)
 
@@ -181,6 +182,9 @@ You can find specific examples of various input files [here](https://github.com/
 #### Imaging Exmples
 - `sample_nifti_inputs.csv`
     - This sample is for converting individual NIFTI files on your computer into a BIDS compliant format.
+
+## Data Pipelines
+BIDSIFY can be used to create data pipelines for uniform pre and post processing of your datasets.
 
 ## Sample commands
 
