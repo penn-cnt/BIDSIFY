@@ -191,7 +191,11 @@ At present we provide the following preprocessing options
 - **deface**: _(Imaging)._ Deface imaging datasets. (Not yet implemented. This is included to showcase how preprocessors can get attached.)
 
 At present we provide the following postprocessing options
-- **sleep staging**: _(Timeseries)._ Create a sidecar csv file that contains the predicted sleep stage within each 30 second window of the timeseries. Currently uses YASA, and is limited to scalp timeseries that contain CZ, C03, and C04 channels. Is a hook to the epipy feature package.
+- **sleep staging**: _(Timeseries)._ Create a sidecar csv file that contains the predicted sleep stage within each 30 second window of the timeseries. Currently uses YASA, and is limited to scalp timeseries that contain CZ, C03, and C04 channels. (Requires the epipy feature package to be within your python path.)
+- **tokenization**: _(Timeseries)._ Tokenize annotations and metadata for each file to create a lookup table that can be queried to make patient cohorts from all data within a dataset. For example, tokens such as sleep, N2, etc. could be queried to get all files in a dataset that match the criteria requested.
+
+### Adding new pre and post processors
+New pre and post processors can be added by attaching new observer objects within a data type handler. The typical name for this method is `attach_objects`. For more information, please refer to the relevant extension point methods found [here](https://github.com/penn-cnt/BIDSIFY/tree/main/documents/SOP).  
 
 ## Sample commands
 
