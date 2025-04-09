@@ -191,7 +191,7 @@ At present we provide the following preprocessing options
 - **deface**: _(Imaging)._ Deface imaging datasets. (Not yet implemented. This is included to showcase how preprocessors can get attached.)
 
 At present we provide the following postprocessing options
-- **anonymize**: _(Timeseries and Imaging)._
+- **sleep staging**: _(Timeseries)._ Create a sidecar csv file that contains the predicted sleep stage within each 30 second window of the timeseries. Currently uses YASA, and is limited to scalp timeseries that contain CZ, C03, and C04 channels. Is a hook to the epipy feature package.
 
 ## Sample commands
 
