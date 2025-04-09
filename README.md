@@ -188,6 +188,10 @@ BIDSIFY can be used to create data pipelines for uniform pre and post processing
 
 At present we provide the following preprocessing options
 - **anonymize**: _(Timeseries and Imaging)._ Check for any PHI information in timeseries datasets or imaging headers. If found, skip this file when creating the final dataset.
+- **deface**: _(Imaging)._ Deface imaging datasets. (Not yet implemented. This is included to showcase how preprocessors can get attached.)
+
+At present we provide the following postprocessing options
+- **anonymize**: _(Timeseries and Imaging)._
 
 ## Sample commands
 
