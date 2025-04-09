@@ -184,7 +184,10 @@ You can find specific examples of various input files [here](https://github.com/
     - This sample is for converting individual NIFTI files on your computer into a BIDS compliant format.
 
 ## Data Pipelines
-BIDSIFY can be used to create data pipelines for uniform pre and post processing of your datasets.
+BIDSIFY can be used to create data pipelines for uniform pre and post processing of your datasets. This is of great importance in providing reproducible datasets, and making sure all data conforms to the relevant standards. It also allows everyone to leverage common tasks performed by other researchers and create the most viable patient cohort. 
+
+At present we provide the following preprocessing options
+- **anonymize**: _(Timeseries and Imaging)._ Check for any PHI information in timeseries datasets or imaging headers. If found, skip this file when creating the final dataset.
 
 ## Sample commands
 
