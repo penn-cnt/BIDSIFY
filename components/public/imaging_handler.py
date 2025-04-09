@@ -111,6 +111,8 @@ class imaging_handler(Subject):
         ##### Data Observers #####
         ##########################
         # Note. This is where you might want to add preprocessors.
+
+        # Deface imaging datasets.
         if self.args.deface:
             print("Defacing not yet implemented. This is a placeholder function.")
             print("Please check the documents/SOP/BIDSIFY.png to learn where the proper extension method would be for this behavior.")
